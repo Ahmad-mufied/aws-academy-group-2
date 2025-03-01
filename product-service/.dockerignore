@@ -1,0 +1,65 @@
+# Version Control
+.git
+.gitignore
+.github
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Go specific
+*.test
+*.out
+go.work
+
+# Build outputs
+bin/
+build/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+*.dockerfile
+.dockerignore
+
+# Documentation
+docs/
+*.md
+README*
+CHANGELOG*
+LICENSE*
+
+# Development and test files
+test/
+tests/
+*_test.go
+*.env
+.env*
+*.log
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Misc
+*.bak
+*.tmp
+*.zip
+*.tar.gz
+coverage.txt
