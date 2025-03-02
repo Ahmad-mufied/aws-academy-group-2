@@ -10,6 +10,10 @@ import (
 var Viper *viper.Viper
 
 func init() {
+	LoadEnv()
+}
+
+func LoadEnv() {
 
 	// Initialize Viper
 	v := viper.New()
