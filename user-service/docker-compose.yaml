@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  db:
+    container_name: db_container
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: aws_academy123
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: david
+      MYSQL_PASSWORD: david123
+    ports:
+      - "3306:3306"
+    networks:
+      - myapp-network
+    volumes:
+      - db-data:/var/lib/mysql
+
+  migration:
+    container_name: migration_container
+    build:
+      context: .
+      dockerfile: ./build/migrate.dockerfile
+    command: ["-verbose", "up"]
+    restart: on-failure
+    env_file:
+      - .env.docker
+    depends_on:
+      - db
+    networks:
+      - myapp-network
+
+  backend:
+    container_name: backend_container
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: ./build/app.dockerfile
+    env_file:
+      - .env.docker
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    networks:
+      - myapp-network
+
+networks:
+  myapp-network:
+    driver: bridge
+
+volumes:
+  db-data:
