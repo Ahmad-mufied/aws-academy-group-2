@@ -2,10 +2,13 @@ package config
 
 import (
 	"context"
-	"github.com/spf13/viper"
+	"github.com/Ahmad-mufied/aws-academy-group-2/product-service/utils"
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -14,7 +17,7 @@ var DB *mongo.Client
 func InitMongo() {
 
 	// Check if the environment variable is set
-	if viper.Get("MONGO_URI") == "" {
+	if Viper.Get("MONGO_URI") == "" {
 		log.Fatal("MONGO_URI is not set")
 	}
 
@@ -61,7 +64,15 @@ func OpenDB(ctx context.Context, uri string) (*mongo.Client, error) {
 	var MaxConnIdleTime time.Duration = 30 * time.Second
 	var MaxConnecting uint64 = 10
 
-	clientOptions := options.Client().ApplyURI(uri)
+	// Create custom registry with UUID codec
+	registry := bson.NewRegistryBuilder().
+		RegisterCodec(
+			reflect.TypeOf(uuid.UUID{}),
+			&utils.UUIDCodec{},
+		).
+		Build()
+
+	clientOptions := options.Client().ApplyURI(uri).SetRegistry(registry)
 	clientOptions.MaxPoolSize = &MaxPoolSize
 	clientOptions.MinPoolSize = &MinPoolSize
 	clientOptions.MaxConnIdleTime = &MaxConnIdleTime
