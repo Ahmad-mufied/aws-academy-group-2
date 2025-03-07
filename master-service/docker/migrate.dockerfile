@@ -1,9 +1,11 @@
 FROM migrate/migrate:v4.15.2
 
-WORKDIR /migrations
+WORKDIR /migration
 
 COPY ./migration /migration
+COPY entrypoint.sh /entrypoint.sh
+COPY .env.docker /.env
 
-ENTRYPOINT ["migrate"]
+RUN chmod +x /entrypoint.sh
 
-CMD ["-path", "/migrations", "-database", "mysql://${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}", "up"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
