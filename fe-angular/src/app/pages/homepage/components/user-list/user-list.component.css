@@ -1,0 +1,21 @@
+table {
+  width: 100%;
+}
+
+th {
+  font-weight: bold;
+}
+
+.active {
+  color: green;
+  font-weight: bold;
+}
+
+.inactive {
+  color: red;
+  font-weight: bold;
+}
+
+mat-checkbox {
+  margin-right: 8px;
+}

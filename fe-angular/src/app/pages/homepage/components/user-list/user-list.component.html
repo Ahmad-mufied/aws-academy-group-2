@@ -1,1 +1,66 @@
-<p>user-list works!</p>
+<table mat-table [dataSource]="users" class="mat-elevation-z8">
+  <!-- No Column -->
+  <ng-container matColumnDef="no">
+    <th mat-header-cell *matHeaderCellDef> No </th>
+    <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 }} </td>
+  </ng-container>
+
+  <!-- Nama Column -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef> Nama </th>
+    <td mat-cell *matCellDef="let element"> {{ element.name }} </td>
+  </ng-container>
+
+  <!-- Email Column -->
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef> Email </th>
+    <td mat-cell *matCellDef="let element"> {{ element.email }} </td>
+  </ng-container>
+
+  <!-- Birth Date Column -->
+  <ng-container matColumnDef="birthDate">
+    <th mat-header-cell *matHeaderCellDef> Birth Date </th>
+    <td mat-cell *matCellDef="let element"> {{ element.birthDate | date:'yyyy-MM-dd' }} </td>
+  </ng-container>
+
+  <!-- Joined At Column -->
+  <ng-container matColumnDef="joinedAt">
+    <th mat-header-cell *matHeaderCellDef> Joined At </th>
+    <td mat-cell *matCellDef="let element"> {{ element.joinedAt | date:'yyyy-MM-dd' }} </td>
+  </ng-container>
+
+  <!-- Status Column -->
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef> Status </th>
+    <td mat-cell *matCellDef="let element">
+      <span [ngClass]="{'active': element.status === 'Active', 'inactive': element.status === 'Inactive'}">
+        {{ element.status }}
+      </span>
+    </td>
+  </ng-container>
+
+  <!-- Product Column (Checkbox) -->
+  <ng-container matColumnDef="product">
+    <th mat-header-cell *matHeaderCellDef> Product </th>
+    <td mat-cell *matCellDef="let element">
+      <mat-checkbox [(ngModel)]="element.products.basic">Basic</mat-checkbox>
+      <mat-checkbox [(ngModel)]="element.products.inter">Inter</mat-checkbox>
+      <mat-checkbox [(ngModel)]="element.products.adv">Adv</mat-checkbox>
+    </td>
+  </ng-container>
+
+  <!-- Actions Column -->
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef> Actions </th>
+    <td mat-cell *matCellDef="let element">
+      <button mat-icon-button color="primary" (click)="viewUser(element)"><mat-icon>visibility</mat-icon></button>
+      <button mat-icon-button color="accent" (click)="assignProduct(element)"><mat-icon>assignment</mat-icon></button>
+      <button mat-icon-button color="warn" (click)="editUser(element)"><mat-icon>edit</mat-icon></button>
+      <button mat-icon-button color="warn" (click)="deleteUser(element)"><mat-icon>delete</mat-icon></button>
+    </td>
+  </ng-container>
+
+  <!-- Table Header & Row -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
