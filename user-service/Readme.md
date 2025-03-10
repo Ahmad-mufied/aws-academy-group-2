@@ -11,11 +11,11 @@ This is a User Service application built with Golang, designed to manage user-re
 
 Make sure you have the following installed:
 
-- Git
+- [Git](https://git-scm.com/)
 
-- Docker
+- [Docker](https://www.docker.com/)
 
-- Docker Compose
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 **Installation**
 
@@ -23,7 +23,7 @@ Make sure you have the following installed:
 
 
    ```bash
-    git clone https://github.com/your-username/user-service.git
+    git clone << github-url >>
     cd user-service
    ```
 
