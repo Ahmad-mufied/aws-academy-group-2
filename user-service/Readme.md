@@ -23,7 +23,7 @@ Make sure you have the following installed:
 
 
    ```bash
-    git clone << github-url >>
+    git clone <github-repo-url>
     cd user-service
    ```
 
