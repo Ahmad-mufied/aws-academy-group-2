@@ -4,11 +4,20 @@ import (
 	"github.com/DavidAfdal/user-services/config"
 	"github.com/DavidAfdal/user-services/internal/builder"
 	"github.com/DavidAfdal/user-services/pkg/database"
+	"github.com/DavidAfdal/user-services/pkg/logger"
 	"github.com/DavidAfdal/user-services/pkg/server"
 )
 
+// @title Swagger Example API
+// @version 1.0
+// @description Documentation of Api for user services.
+
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
-	cfg, err := config.NewConfig(".env")
+	logger.InitLog()
+
+	cfg, err := config.NewConfig(".env.local")
 	checkError(err)
 
 	database, err := database.InitDB(cfg.Database)
