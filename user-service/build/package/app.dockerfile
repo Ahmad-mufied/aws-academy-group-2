@@ -8,13 +8,14 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o myapp cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o myapp cmd/app/main.go
 
 FROM alpine:latest
 
 WORKDIR /app
 
 COPY --from=builder /app/myapp .
+COPY --from=builder /app/docs ./docs 
 COPY --from=builder /app/.env.local .
 
 EXPOSE 8080

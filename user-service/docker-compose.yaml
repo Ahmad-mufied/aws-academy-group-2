@@ -19,8 +19,8 @@ services:
   migration:
     container_name: migration_container
     build:
-      context: .
-      dockerfile: ./build/migrate.dockerfile
+      context: ./
+      dockerfile: ./build/package/migrate.dockerfile
     command: ["-verbose", "up"]
     restart: on-failure
     env_file:
@@ -31,11 +31,11 @@ services:
       - myapp-network
 
   backend:
-    container_name: backend_container
+    container_name: app_container
     restart: on-failure
     build:
-      context: .
-      dockerfile: ./build/app.dockerfile
+      context: ./
+      dockerfile: ./build/package/app.dockerfile
     env_file:
       - .env.docker
     depends_on:
