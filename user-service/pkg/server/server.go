@@ -9,9 +9,12 @@ import (
 	"os/signal"
 	"time"
 
+	_ "github.com/DavidAfdal/user-services/docs"
+	"github.com/DavidAfdal/user-services/pkg/logger"
 	"github.com/DavidAfdal/user-services/pkg/route"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type Server struct {
@@ -21,7 +24,15 @@ type Server struct {
 func NewServer(publicRoutes []*route.Route) *Server {
 	e := echo.New()
 
-	e.Use(middleware.CORS())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"}, // Izinkan semua origin (ubah sesuai kebutuhan)
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
+
+	e.Use(middlewareLogging)
+
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "Hello, World!")
@@ -65,4 +76,11 @@ func gracefulShutdown(srv *Server) {
 			srv.Logger.Fatal("Server Shutdown:", err)
 		}
 	}()
+}
+
+func middlewareLogging(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		logger.Info(c, "incoming request")
+		return next(c)
+	}
 }
