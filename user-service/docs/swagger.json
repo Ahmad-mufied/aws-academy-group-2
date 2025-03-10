@@ -1,0 +1,583 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Documentation of Api for user services.",
+        "title": "Swagger Example API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/users": {
+            "get": {
+                "description": "Get paginated list of users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of users per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query for name or email",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date format: YYYY-MM-DD",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date format: YYYY-MM-DD",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UserListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.CreatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ConflictResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "description": "Get user details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.SingleUserResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update existing user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "User data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.SingleUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove user from database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.DeletedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "swagger.ConflictResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.MetaConflict"
+                }
+            }
+        },
+        "swagger.CreateUserRequest": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "2000-01-01"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "david.afdal@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "David Afdal"
+                },
+                "role_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "status_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                }
+            }
+        },
+        "swagger.CreatedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.User"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.MetaCreated"
+                }
+            }
+        },
+        "swagger.DeletedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.Meta"
+                }
+            }
+        },
+        "swagger.InternalServerErrorResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.MetaInternalServerError"
+                }
+            }
+        },
+        "swagger.Meta": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "swagger.MetaBadRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Invalid request"
+                }
+            }
+        },
+        "swagger.MetaConflict": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 409
+                },
+                "message": {
+                    "type": "string",
+                    "example": "user already exists"
+                }
+            }
+        },
+        "swagger.MetaCreated": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 201
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Successfully created user"
+                }
+            }
+        },
+        "swagger.MetaInternalServerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Internal server error"
+                }
+            }
+        },
+        "swagger.MetaNotFound": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 404
+                },
+                "message": {
+                    "type": "string",
+                    "example": "user not found"
+                }
+            }
+        },
+        "swagger.NotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.MetaNotFound"
+                }
+            }
+        },
+        "swagger.SingleUserResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.User"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.Meta"
+                }
+            }
+        },
+        "swagger.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "2000-01-01"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "david.afdal@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "David Afdal"
+                },
+                "role_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "status_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                }
+            }
+        },
+        "swagger.User": {
+            "type": "object",
+            "properties": {
+                "attribute": {
+                    "type": "object",
+                    "properties": {
+                        "role": {
+                            "type": "string",
+                            "example": "admin"
+                        },
+                        "status": {
+                            "type": "string",
+                            "example": "active"
+                        }
+                    }
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                },
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "2000-01-01"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "david.afdal@example.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "e1107b61-3531-4834-be96-a2cf981bced9"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "David Afdal"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                }
+            }
+        },
+        "swagger.UserListData": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total_data": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.User"
+                    }
+                }
+            }
+        },
+        "swagger.UserListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.UserListData"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.Meta"
+                }
+            }
+        },
+        "swagger.ValidationErrorData": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "DoB is required"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "Email must be a valid email address"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Name is required"
+                },
+                "role_id": {
+                    "type": "string",
+                    "example": "RoleID is required"
+                },
+                "status_id": {
+                    "type": "string",
+                    "example": "StatusID is required"
+                }
+            }
+        },
+        "swagger.ValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.ValidationErrorData"
+                },
+                "meta": {
+                    "$ref": "#/definitions/swagger.MetaBadRequest"
+                }
+            }
+        }
+    }
+}
