@@ -1,15 +1,26 @@
 package binder
 
 type GetUsersBinder struct {
-	Search string `query:"search"`
-	Page   int    `query:"page"`
-	Limit  int    `query:"limit"`
+	Search    string `query:"search"`
+	Page      int    `query:"page"`
+	Limit     int    `query:"limit"`
+	StartDate string `query:"start_date"`
+	EndDate   string `query:"end_date"`
+}
+
+type UpdateUserBinder struct {
+	ID       string `param:"id" validate:"required"`
+	Name     string `json:"name" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	DoB      string `json:"date_of_birth" validate:"required"`
+	RoleID   string `json:"role_id" validate:"required"`
+	StatusID string `json:"status_id" validate:"required"`
 }
 
 type CreateUserBinder struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	DoB      string `json:"date_of_birth" binding:"required"`
-	RoleID   string `json:"role" binding:"required"`
-	StatusID string `json:"status" binding:"required"`
+	Name     string `json:"name" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	DoB      string `json:"date_of_birth" validate:"required"`
+	RoleID   string `json:"role_id" validate:"required"`
+	StatusID string `json:"status_id" validate:"required"`
 }
