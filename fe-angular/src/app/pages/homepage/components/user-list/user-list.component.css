@@ -1,21 +1,65 @@
-table {
-  width: 100%;
+.user-list-card {
+  margin: 20px;
+  max-width: 1200px; /* Adjust as needed */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif; /* Modern font */
 }
 
-th {
-  font-weight: bold;
+.user-list-card mat-toolbar {
+  font-weight: 500;
+}
+
+.table-container {
+  overflow-x: auto; /* Enable horizontal scrolling */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th.mat-header-cell {
+  text-align: left;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6); /* Slightly muted header text */
+}
+
+td.mat-cell {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12); /* Light divider */
 }
 
 .active {
-  color: green;
-  font-weight: bold;
+  color: #4CAF50; /* Green */
 }
 
 .inactive {
-  color: red;
-  font-weight: bold;
+  color: #F44336; /* Red */
 }
 
-mat-checkbox {
-  margin-right: 8px;
+button {
+  margin: 4px;
+  border-radius: 4px;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #F48FB1; /* Focus ring - Light Pink from $accent */
+}
+
+button mat-icon {
+  vertical-align: middle;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-icon-button:hover {
+  background-color: rgba(0, 0, 0, 0.04); /* Subtle hover effect */
+}
+
+.mat-toolbar.mat-primary {
+  background: #3f51b5; /* Indigo 500 - Primary Color */
+  color: white;
 }
