@@ -8,15 +8,20 @@
 # air files
 tmp
 
+# Ignore all .env files
+.env*
+
+# Allow the .env.example file
+!.env.example
+
 # Development and test files
 test/
 tests/
 *_test.go
-*.env
-.env*
 *.log
 tmp/
 temp/
+
 
 # OS generated files
 .DS_Store

@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"github.com/Ahmad-mufied/aws-academy-group-2/product-service/logger"
 	"github.com/Ahmad-mufied/aws-academy-group-2/product-service/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,10 +18,11 @@ var DB *mongo.Client
 func InitMongo() {
 
 	// Check if the environment variable is set
-	if Viper.Get("MONGO_URI") == "" {
+	if Viper.Get("MONGO_URI").(string) == "" {
 		log.Fatal("MONGO_URI is not set")
 	}
 
+	logger.Info("MongoURI: " + Viper.Get("MONGO_URI").(string))
 	log.Println("Connecting to mongo " + "...")
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancelFunc()
