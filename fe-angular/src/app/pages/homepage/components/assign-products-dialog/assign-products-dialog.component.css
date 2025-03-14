@@ -1,0 +1,15 @@
+.example-tree {
+  margin-left: 16px;
+}
+.mat-tree-node {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+}
+.mat-tree-node button {
+  margin-right: 12px;
+}
+
+.nested-list {
+  margin-left: 20px;
+}

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+// user-list.component.ts
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -8,12 +9,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { AfterViewInit } from '@angular/core';
-import { MatCardModule } from '@angular/material/card'; // Import MatCardModule
-import { MatToolbarModule } from '@angular/material/toolbar'; // Import MatToolbarModule
-import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { UserDetailDialogComponent } from '../user-detail-dialog/user-detail-dialog.component';
+import { AssignProductsDialogComponent } from '../assign-products-dialog/assign-products-dialog.component';
 
 export interface User {
   id: number;
@@ -29,7 +31,7 @@ export interface User {
   selector: 'app-user-list',
   standalone: true,
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.css'], // Changed to .css
+  styleUrls: ['./user-list.component.css'],
   imports: [
     MatTableModule,
     MatListModule,
@@ -40,15 +42,18 @@ export interface User {
     MatDividerModule,
     MatButtonModule,
     MatPaginatorModule,
-    MatCardModule, // Add MatCardModule to imports
-    MatToolbarModule, // Add MatToolbarModule to imports
-    MatTooltipModule, // Add MatTooltipModule to imports
+    MatCardModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    MatDialogModule,
   ],
 })
 export class UserListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['name', 'email', 'dob', 'role', 'registeredDate', 'status', 'actions'];
-  users: User[] = []; // Initialize as empty array
+  users: User[] = [];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  constructor(public dialog: MatDialog) {}
 
   ngOnInit(): void {
     // Mock Data
@@ -66,13 +71,20 @@ export class UserListComponent implements OnInit, AfterViewInit {
     ];
   }
 
-    ngAfterViewInit() {
-    this.paginator.pageSize = 5; // set default page size
-    this.paginator.pageSizeOptions = [5, 10, 25, 100]; // configure page size options
+  ngAfterViewInit() {
+    this.paginator.pageSize = 5;
+    this.paginator.pageSizeOptions = [5, 10, 25, 100];
   }
 
   viewUser(user: User) {
-    console.log('Viewing user:', user);
+    const dialogRef = this.dialog.open(UserDetailDialogComponent, {
+      width: '400px',
+      data: user,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
   }
 
   editUser(user: User) {
@@ -80,7 +92,14 @@ export class UserListComponent implements OnInit, AfterViewInit {
   }
 
   assignRole(user: User) {
-    console.log('Assigning role to user:', user);
+    const dialogRef = this.dialog.open(AssignProductsDialogComponent, {
+      width: '500px',
+      data: user,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The assign products dialog was closed', result);
+    });
   }
 
   deleteUser(user: User) {

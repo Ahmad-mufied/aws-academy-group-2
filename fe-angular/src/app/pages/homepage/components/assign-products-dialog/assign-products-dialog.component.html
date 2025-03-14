@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>Assign Products</h2>
+<mat-dialog-content class="mat-typography">
+  <mat-list>
+    <mat-list-item *ngFor="let product of products">
+      <mat-checkbox
+        (change)="updateProduct(product, $event)"
+        [checked]="product.completed"
+      >
+        {{ product.name }}
+      </mat-checkbox>
+
+      <mat-list *ngIf="product.children" class="nested-list">
+        <mat-list-item *ngFor="let subtask of product.children">
+          <mat-checkbox
+            (change)="updateSubtask(product, subtask, $event)"
+            [checked]="subtask.completed"
+          >
+            {{ subtask.name }}
+          </mat-checkbox>
+        </mat-list-item>
+      </mat-list>
+    </mat-list-item>
+  </mat-list>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-button color="primary" (click)="onSubmitClick()">Submit</button>
+</mat-dialog-actions>

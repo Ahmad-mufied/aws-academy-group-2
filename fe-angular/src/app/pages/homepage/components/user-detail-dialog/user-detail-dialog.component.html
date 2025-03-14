@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>{{ data.name }}</h2>
+<mat-dialog-content class="mat-typography">
+    <mat-list>
+        <mat-list-item>
+            <strong>Email:</strong> {{ data.email }}
+        </mat-list-item>
+        <mat-list-item>
+            <strong>DoB:</strong> {{ data.dob | date:'yyyy-MM-dd' }}
+        </mat-list-item>
+        <mat-list-item>
+            <strong>Role:</strong> {{ data.role }}
+        </mat-list-item>
+        <mat-list-item>
+            <strong>Status:</strong> {{ data.status }}
+        </mat-list-item>
+        <mat-list-item>
+            <strong>Products:</strong>
+            <mat-list>
+                <mat-list-item *ngFor="let product of ['Product 1', 'Product 2', 'Product 3', 'Product 4', 'Product 5']">
+                    - {{ product }}
+                </mat-list-item>
+            </mat-list>
+        </mat-list-item>
+    </mat-list>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCloseClick()" matDialogClose>Close</button>
+</mat-dialog-actions>

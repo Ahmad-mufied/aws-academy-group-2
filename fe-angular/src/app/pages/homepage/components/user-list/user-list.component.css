@@ -1,9 +1,8 @@
 .user-list-card {
   margin: 20px;
-  /*max-width: 1200px;  Adjust as needed */
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-family: 'Roboto', sans-serif; /* Modern font */
+  font-family: 'Roboto', sans-serif;
 }
 
 .user-list-card mat-toolbar {
@@ -11,7 +10,7 @@
 }
 
 .table-container {
-  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-x: auto;
 }
 
 table {
@@ -22,19 +21,19 @@ table {
 th.mat-header-cell {
   text-align: left;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.6); /* Slightly muted header text */
+  color: rgba(0, 0, 0, 0.6);
 }
 
 td.mat-cell {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12); /* Light divider */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.active {
-  color: #4CAF50; /* Green */
+.active-text {
+  color: #4CAF50;
 }
 
-.inactive {
-  color: #F44336; /* Red */
+.inactive-text {
+  color: #F44336;
 }
 
 button {
@@ -44,12 +43,12 @@ button {
 
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #F48FB1; /* Focus ring - Light Pink from $accent */
+  box-shadow: 0 0 0 2px #F48FB1;
 }
 
 button mat-icon {
   vertical-align: middle;
-  margin-right: 4px; /* Add spacing between icon and text */
+  margin-right: 4px;
 }
 
 .spacer {
@@ -57,10 +56,10 @@ button mat-icon {
 }
 
 mat-icon-button:hover {
-  background-color: rgba(0, 0, 0, 0.04); /* Subtle hover effect */
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .mat-toolbar.mat-primary {
-  background: #3f51b5; /* Indigo 500 - Primary Color */
+  background: #3f51b5;
   color: white;
 }
