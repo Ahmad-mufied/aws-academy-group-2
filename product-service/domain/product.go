@@ -2,10 +2,11 @@ package domain
 
 import (
 	"context"
-	"github.com/Ahmad-mufied/aws-academy-group-2/product-service/dto"
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/Ahmad-mufied/aws-academy-group-2/product-service/dto"
 )
 
 type Product struct {
