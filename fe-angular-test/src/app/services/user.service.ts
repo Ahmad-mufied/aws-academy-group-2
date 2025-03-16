@@ -2,17 +2,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/user.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
   private users: User[] = [];
   private usersSubject = new BehaviorSubject<User[]>([]);
 
   constructor() {
-    // Initial dummy data
     this.users = [{
-      id: 1,
+      id: '1',
       name: 'Joe',
       email: 'joe@example.com',
       dob: new Date('1996-02-12'),
@@ -33,7 +30,7 @@ export class UserService {
   }
 
   addUser(user: User): void {
-    user.id = this.users.length + 1;
+    user.id = (this.users.length + 1).toString();
     this.users.push(user);
     this.updateUsers();
   }
@@ -46,16 +43,8 @@ export class UserService {
     }
   }
 
-  deleteUser(id: number): void {
+  deleteUser(id: string): void {
     this.users = this.users.filter(user => user.id !== id);
     this.updateUsers();
-  }
-
-  searchUsers(query: string): void {
-    const filteredUsers = this.users.filter(user =>
-      user.name.toLowerCase().includes(query.toLowerCase()) ||
-      user.email.toLowerCase().includes(query.toLowerCase())
-    );
-    this.usersSubject.next(filteredUsers);
   }
 }
