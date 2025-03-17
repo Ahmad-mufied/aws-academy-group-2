@@ -26,11 +26,7 @@ Make sure the app runs correctly in Docker by executing:
 docker compose ps
 ```
 
-Congratulations! Now your master service is running. If you access the API, it will show a welcome message:
-
-```bash
-curl --location 'http://localhost:8001/'
-```
+Congratulations! Now your master service is running on 'http://localhost:8001/'. If you access the API, it will show a welcome message.
 
 ---
 
