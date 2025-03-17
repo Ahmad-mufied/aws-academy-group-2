@@ -24,8 +24,8 @@ func main() {
 	route := mux.NewRouter()
 
 	route.HandleFunc("/", handler.Hello)
-	route.HandleFunc("/role", app.RoleHandler.CreateNewRole).Methods("POST")
-	route.HandleFunc("/role", app.RoleHandler.GetAllRoles).Methods("GET")
+	route.HandleFunc("/roles", app.RoleHandler.CreateNewRole).Methods("POST")
+	route.HandleFunc("/roles", app.RoleHandler.GetAllRoles).Methods("GET")
 	route.HandleFunc("/status", app.StatusHandler.CreateNewStatus).Methods("POST")
 	route.HandleFunc("/status", app.StatusHandler.GetAllStatus).Methods("GET")
 
