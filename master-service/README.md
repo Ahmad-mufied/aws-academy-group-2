@@ -6,7 +6,7 @@ This is a microservice for maintaining master data.
 Run this command to build the image and run the container using Docker Compose:
 
 ```bash
-docker compose up -d --build
+docker compose up --build -d
 ```
 
 If you see the result like this, then the app should be running:
@@ -27,6 +27,12 @@ docker compose ps
 ```
 
 Congratulations! Now your master service is running on 'http://localhost:8001/'. If you access the API, it will show a welcome message.
+
+Run this command to delete the docker component using Docker Compose:
+
+```bash
+docker compose down -v
+```
 
 ---
 
