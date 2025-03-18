@@ -1,0 +1,26 @@
+<div class="container">
+    <h2>Add User</h2>
+    <form>
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Name" [(ngModel)]="user.name" name="name">
+      </mat-form-field>
+  
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Email" [(ngModel)]="user.email" name="email">
+      </mat-form-field>
+  
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Role" [(ngModel)]="user.role" name="role">
+      </mat-form-field>
+  
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Status" [(ngModel)]="user.status" name="status">
+      </mat-form-field>
+  
+      <div class="actions">
+        <button mat-button (click)="router.navigate(['/users'])">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+      </div>
+    </form>
+  </div>
+  

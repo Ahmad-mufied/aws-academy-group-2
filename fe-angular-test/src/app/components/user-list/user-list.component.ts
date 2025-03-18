@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { UserFormComponent } from '../user-form/user-form.component';
 import { UserDetailComponent } from '../user-detail/user-detail.component';
 import { ProductAssignComponent } from '../product-assign/product-assign.component';
+import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { UserFilterComponent } from '../user-filter/user-filter.component';
 
@@ -26,87 +27,8 @@ import { UserFilterComponent } from '../user-filter/user-filter.component';
     FormsModule,
     UserFilterComponent
   ],
-  template: `
-    <div class="container">
-    <div class="header">
-      <h1>User Management</h1>
-      <div class="actions">
-        <mat-form-field>
-          <input matInput placeholder="Search users..." [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()">
-        </mat-form-field>
-        <button mat-icon-button (click)="openFilterDialog()">
-          <mat-icon>filter_list</mat-icon>
-        </button>
-        <button mat-raised-button color="primary" (click)="openUserForm()">Add User</button>
-      </div>
-    </div>
-
-    <table mat-table [dataSource]="filteredUsers" class="mat-elevation-z8">
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let user">{{user.name}}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef>Email</th>
-          <td mat-cell *matCellDef="let user">{{user.email}}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef>Role</th>
-          <td mat-cell *matCellDef="let user">{{user.role}}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let user">{{user.status}}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let user">
-            <button mat-icon-button (click)="viewDetails(user)">
-              <mat-icon>visibility</mat-icon>
-            </button>
-            <button mat-icon-button (click)="editUser(user)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="assignProducts(user)">
-              <mat-icon>assignment</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="deleteUser(user)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-    </div>
-    <ng-template #loading>
-      <p>Loading users...</p>
-    </ng-template>
-  `,
-  styles: [`
-    .container {
-      padding: 20px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .actions {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    table {
-      width: 100%;
-    }
-  `]
+  templateUrl: './user-list.component.html',
+  styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit {
   users: User[] = [];
@@ -115,10 +37,7 @@ export class UserListComponent implements OnInit {
   searchQuery: string = '';
   filters: { startDate?: Date; endDate?: Date; status?: string } = {}; // Tambah ini
 
-  constructor(
-    private userService: UserService,
-    private dialog: MatDialog
-  ) {}
+  constructor(private userService: UserService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.userService.getUsers().subscribe(users => {
@@ -177,9 +96,7 @@ export class UserListComponent implements OnInit {
   }
 
   editUser(user: User): void {
-    const dialogRef = this.dialog.open(UserFormComponent, {
-      data: user
-    });
+    const dialogRef = this.dialog.open(UserFormComponent, { data: user });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.userService.updateUser(result);
@@ -188,17 +105,11 @@ export class UserListComponent implements OnInit {
   }
 
   viewDetails(user: User): void {
-    this.dialog.open(UserDetailComponent, {
-      data: user,
-      width: '400px'
-    });
+    this.dialog.open(UserDetailComponent, { data: user, width: '400px' });
   }
 
   assignProducts(user: User): void {
-    const dialogRef = this.dialog.open(ProductAssignComponent, {
-      data: user,
-      width: '400px'
-    });
+    const dialogRef = this.dialog.open(ProductAssignComponent, { data: user, width: '400px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.userService.updateUser({ ...user, products: result });

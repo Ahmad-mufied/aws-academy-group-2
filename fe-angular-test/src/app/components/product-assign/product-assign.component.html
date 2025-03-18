@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Assign Products</h2>
+<mat-dialog-content>
+  <div *ngFor="let product of availableProducts" class="product-item">
+    <!-- Parent Task -->
+    <mat-checkbox [(ngModel)]="product.selected" (change)="toggleParentSelection(product)">
+      {{ product.name }}
+    </mat-checkbox>
+
+    <ul>
+      <li *ngFor="let subtask of product.subtasks">
+        <mat-checkbox [(ngModel)]="subtask.selected">
+          {{ subtask.name }}
+        </mat-checkbox>
+      </li>
+    </ul>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+</mat-dialog-actions>

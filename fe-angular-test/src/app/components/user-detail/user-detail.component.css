@@ -1,0 +1,11 @@
+.detail-row {
+    margin-bottom: 16px;
+  }
+  strong {
+    font-weight: 500;
+    margin-right: 8px;
+  }
+  ul {
+    margin: 8px 0 0 20px;
+  }
+  

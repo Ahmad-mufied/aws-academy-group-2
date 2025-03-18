@@ -1,5 +1,5 @@
 export interface User {
-  id?: number;
+  id?: string;
   name: string;
   email: string;
   dob: Date;
@@ -7,4 +7,5 @@ export interface User {
   registeredDate: Date;
   status: 'Active' | 'Inactive';
   products?: string[];
+  dateOfBirth?: Date; 
 }
