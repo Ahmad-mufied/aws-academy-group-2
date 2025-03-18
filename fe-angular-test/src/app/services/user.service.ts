@@ -10,22 +10,38 @@ export class UserService {
   private usersSubject = new BehaviorSubject<User[]>([]);
 
   constructor() {
-    // Initial dummy data
-    this.users = [{
-      id: 1,
-      name: 'Joe',
-      email: 'joe@example.com',
-      dob: new Date('1996-02-12'),
-      role: 'Admin',
-      registeredDate: new Date('2025-02-12'),
-      status: 'Active',
-      products: []
-    }];
+    this.loadUsersFromStorage();
+    if (this.users.length === 0) {
+      this.users = [{
+        id: 1,
+        name: 'Joe',
+        email: 'joe@example.com',
+        dob: new Date('1996-02-12'),
+        role: 'Admin',
+        registeredDate: new Date('2025-02-12'),
+        status: 'Active',
+        products: []
+      }];
+      this.saveUsersToStorage();
+    }
     this.updateUsers();
+  }
+
+  private loadUsersFromStorage(): void {
+    const stored = localStorage.getItem('users');
+    this.users = stored ? JSON.parse(stored, (key, value) => {
+      if (key === 'dob' || key === 'registeredDate') return new Date(value);
+      return value;
+    }) : [];
+  }
+
+  private saveUsersToStorage(): void {
+    localStorage.setItem('users', JSON.stringify(this.users));
   }
 
   private updateUsers(): void {
     this.usersSubject.next([...this.users]);
+    this.saveUsersToStorage();
   }
 
   getUsers(): Observable<User[]> {
@@ -51,11 +67,11 @@ export class UserService {
     this.updateUsers();
   }
 
-  searchUsers(query: string): void {
-    const filteredUsers = this.users.filter(user =>
-      user.name.toLowerCase().includes(query.toLowerCase()) ||
-      user.email.toLowerCase().includes(query.toLowerCase())
-    );
-    this.usersSubject.next(filteredUsers);
-  }
+  // searchUsers(query: string): void {
+  //   const filteredUsers = this.users.filter(user =>
+  //     user.name.toLowerCase().includes(query.toLowerCase()) ||
+  //     user.email.toLowerCase().includes(query.toLowerCase())
+  //   );
+  //   this.usersSubject.next(filteredUsers);
+  // }
 }

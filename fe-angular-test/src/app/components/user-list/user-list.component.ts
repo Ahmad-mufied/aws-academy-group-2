@@ -11,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { UserFormComponent } from '../user-form/user-form.component';
 import { UserDetailComponent } from '../user-detail/user-detail.component';
 import { ProductAssignComponent } from '../product-assign/product-assign.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { UserFilterComponent } from '../user-filter/user-filter.component';
 
 @Component({
   selector: 'app-user-list',
@@ -21,23 +23,25 @@ import { ProductAssignComponent } from '../product-assign/product-assign.compone
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    FormsModule
+    FormsModule,
+    UserFilterComponent
   ],
   template: `
     <div class="container">
-      <div class="header">
-        <h1>User Management</h1>
-        <div class="actions">
-          <mat-form-field>
-            <input matInput placeholder="Search users..." (keyup)="onSearch($event)">
-          </mat-form-field>
-          <button mat-raised-button color="primary" (click)="openUserForm()">
-            Add User
-          </button>
-        </div>
+    <div class="header">
+      <h1>User Management</h1>
+      <div class="actions">
+        <mat-form-field>
+          <input matInput placeholder="Search users..." [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()">
+        </mat-form-field>
+        <button mat-icon-button (click)="openFilterDialog()">
+          <mat-icon>filter_list</mat-icon>
+        </button>
+        <button mat-raised-button color="primary" (click)="openUserForm()">Add User</button>
       </div>
+    </div>
 
-      <table mat-table [dataSource]="users">
+    <table mat-table [dataSource]="filteredUsers" class="mat-elevation-z8">
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Name</th>
           <td mat-cell *matCellDef="let user">{{user.name}}</td>
@@ -80,6 +84,9 @@ import { ProductAssignComponent } from '../product-assign/product-assign.compone
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
     </div>
+    <ng-template #loading>
+      <p>Loading users...</p>
+    </ng-template>
   `,
   styles: [`
     .container {
@@ -103,7 +110,10 @@ import { ProductAssignComponent } from '../product-assign/product-assign.compone
 })
 export class UserListComponent implements OnInit {
   users: User[] = [];
+  filteredUsers: User[] = [];
   displayedColumns: string[] = ['name', 'email', 'role', 'status', 'actions'];
+  searchQuery: string = '';
+  filters: { startDate?: Date; endDate?: Date; status?: string } = {}; // Tambah ini
 
   constructor(
     private userService: UserService,
@@ -113,13 +123,49 @@ export class UserListComponent implements OnInit {
   ngOnInit(): void {
     this.userService.getUsers().subscribe(users => {
       this.users = users;
+      this.filteredUsers = users;
     });
   }
 
-  onSearch(event: Event): void {
-    const query = (event.target as HTMLInputElement).value;
-    this.userService.searchUsers(query);
+  openFilterDialog(): void {
+    const dialogRef = this.dialog.open(UserFilterComponent, {
+      data: this.filters,
+      width: '400px'
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.filters = result;
+        this.applyFilters();
+      }
+    });
   }
+
+  applyFilters(): void {
+    this.filteredUsers = this.users.filter(user => {
+      const matchesSearch = this.searchQuery
+        ? (user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+           user.email.toLowerCase().includes(this.searchQuery.toLowerCase()))
+        : true;
+      const matchesStartDate = this.filters.startDate
+        ? new Date(user.dob) >= new Date(this.filters.startDate)
+        : true;
+      const matchesEndDate = this.filters.endDate
+        ? new Date(user.dob) <= new Date(this.filters.endDate)
+        : true;
+      const matchesStatus = this.filters.status
+        ? user.status === this.filters.status
+        : true;
+      return matchesSearch && matchesStartDate && matchesEndDate && matchesStatus;
+    });
+  }
+
+  // onSearch(event: Event): void {
+  //   const query = (event.target as HTMLInputElement).value.toLowerCase();
+  //   this.filteredUsers = this.users.filter(user =>
+  //     user.name.toLowerCase().includes(query) ||
+  //     user.email.toLowerCase().includes(query)
+  //   );
+  // }
 
   openUserForm(): void {
     const dialogRef = this.dialog.open(UserFormComponent);
@@ -161,8 +207,13 @@ export class UserListComponent implements OnInit {
   }
 
   deleteUser(user: User): void {
-    if (confirm(`Are you sure you want to delete ${user.name}?`)) {
-      this.userService.deleteUser(user.id!);
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { message: `Are you sure you want to delete ${user.name} (ID: ${user.id})?` }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.userService.deleteUser(user.id!);
+      }
+    });
   }
 }
