@@ -57,13 +57,15 @@ func (r *UserHandler) GetUsers(c echo.Context) error {
 
 	logger.Info(c, "Successfully fetched users")
 
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Successfully fetched users", map[string]interface{}{
-		"users":       pagination.Data,
-		"page":        pagination.Page,
-		"limit":       pagination.PageSize,
-		"total_data":  pagination.TotalCount,
-		"total_pages": pagination.TotalPages,
-	}))
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"meta": map[string]interface{}{
+			"page":        pagination.Page,
+			"limit":       pagination.PageSize,
+			"total_data":  pagination.TotalCount,
+			"total_pages": pagination.TotalPages,
+		},
+		"data": pagination.Data,
+	})
 }
 
 // CreateUser godoc
