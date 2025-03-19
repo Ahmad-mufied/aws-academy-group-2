@@ -8,7 +8,7 @@ import (
 	"github.com/DavidAfdal/user-services/pkg/server"
 )
 
-// @title Swagger Example API
+// @title User Service API
 // @version 1.0
 // @description Documentation of Api for user services.
 

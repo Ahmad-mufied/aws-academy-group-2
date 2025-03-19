@@ -103,6 +103,21 @@ definitions:
         example: user not found
         type: string
     type: object
+  swagger.MetaPagination:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total_data:
+        example: 2
+        type: integer
+      total_pages:
+        example: 1
+        type: integer
+    type: object
   swagger.NotFoundResponse:
     properties:
       data:
@@ -166,31 +181,14 @@ definitions:
         example: "2025-03-10 17:31:48"
         type: string
     type: object
-  swagger.UserListData:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      page:
-        example: 1
-        type: integer
-      total_data:
-        example: 2
-        type: integer
-      total_pages:
-        example: 1
-        type: integer
-      users:
-        items:
-          $ref: '#/definitions/swagger.User'
-        type: array
-    type: object
   swagger.UserListResponse:
     properties:
       data:
-        $ref: '#/definitions/swagger.UserListData'
+        items:
+          $ref: '#/definitions/swagger.User'
+        type: array
       meta:
-        $ref: '#/definitions/swagger.Meta'
+        $ref: '#/definitions/swagger.MetaPagination'
     type: object
   swagger.ValidationErrorData:
     properties:
@@ -221,7 +219,7 @@ host: localhost:8080
 info:
   contact: {}
   description: Documentation of Api for user services.
-  title: Swagger Example API
+  title: User Service API
   version: "1.0"
 paths:
   /users:

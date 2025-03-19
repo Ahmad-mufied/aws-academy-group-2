@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "Documentation of Api for user services.",
-        "title": "Swagger Example API",
+        "title": "User Service API",
         "contact": {},
         "version": "1.0"
     },
@@ -415,6 +415,27 @@
                 }
             }
         },
+        "swagger.MetaPagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total_data": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "swagger.NotFoundResponse": {
             "type": "object",
             "properties": {
@@ -505,41 +526,17 @@
                 }
             }
         },
-        "swagger.UserListData": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "page": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "total_data": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "total_pages": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/swagger.User"
-                    }
-                }
-            }
-        },
         "swagger.UserListResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/swagger.UserListData"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.User"
+                    }
                 },
                 "meta": {
-                    "$ref": "#/definitions/swagger.Meta"
+                    "$ref": "#/definitions/swagger.MetaPagination"
                 }
             }
         },

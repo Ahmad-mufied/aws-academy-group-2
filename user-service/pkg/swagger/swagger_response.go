@@ -5,6 +5,13 @@ type Meta struct {
 	Message string `json:"message" example:"Success"`
 }
 
+type MetaPagination struct {
+	Limit      int `json:"limit" example:"10"`
+	Page       int `json:"page" example:"1"`
+	TotalData  int `json:"total_data" example:"2"`
+	TotalPages int `json:"total_pages" example:"1"`
+}
+
 type MetaBadRequest struct {
 	Code    int    `json:"code" example:"400"`
 	Message string `json:"message" example:"Invalid request"`
@@ -51,17 +58,9 @@ type ValidationErrorData struct {
 	StatusID    string `json:"status_id" example:"StatusID is required"`
 }
 
-type UserListData struct {
-	Limit      int    `json:"limit" example:"10"`
-	Page       int    `json:"page" example:"1"`
-	TotalData  int    `json:"total_data" example:"2"`
-	TotalPages int    `json:"total_pages" example:"1"`
-	Users      []User `json:"users"`
-}
-
 type UserListResponse struct {
-	Meta Meta         `json:"meta"`
-	Data UserListData `json:"data"`
+	Meta MetaPagination `json:"meta"`
+	Data []User         `json:"data"`
 }
 
 type SingleUserResponse struct {

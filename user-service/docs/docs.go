@@ -421,6 +421,27 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.MetaPagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total_data": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "swagger.NotFoundResponse": {
             "type": "object",
             "properties": {
@@ -511,41 +532,17 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.UserListData": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "page": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "total_data": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "total_pages": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/swagger.User"
-                    }
-                }
-            }
-        },
         "swagger.UserListResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/swagger.UserListData"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.User"
+                    }
                 },
                 "meta": {
-                    "$ref": "#/definitions/swagger.Meta"
+                    "$ref": "#/definitions/swagger.MetaPagination"
                 }
             }
         },
@@ -594,7 +591,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Swagger Example API",
+	Title:            "User Service API",
 	Description:      "Documentation of Api for user services.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
