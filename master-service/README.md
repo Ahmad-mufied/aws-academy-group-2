@@ -89,6 +89,26 @@ GET /roles
 ]
 ```
 
+### Get Role By Id
+Retrieve role stored in the database by id.
+
+```http
+GET /roles/{id}
+```
+
+**Response:**
+```json
+{
+    "id": "4feb9a03-0621-11f0-9eb8-0242ac130002",
+    "name": "Admin",
+    "is_active": true,
+    "created_by": "00000000-0000-0000-0000-000000000001",
+    "created_at": "2025-03-21T06:54:19Z",
+    "updated_by": "00000000-0000-0000-0000-000000000001",
+    "updated_at": "2025-03-21T06:54:19Z"
+}
+```
+
 ### Insert Role
 Create a role.
 
@@ -96,10 +116,18 @@ Create a role.
 POST /roles
 ```
 
-**Request Body:**
+**Request Body: (without is_active)**
 ```json
 {
     "name": "Developer"
+}
+```
+
+**Request Body: (with is_active)**
+```json
+{
+    "name": "Developer",
+    "is_active": false
 }
 ```
 
@@ -128,6 +156,14 @@ POST /roles
 {
     "id": "ab445a56-10ed-42f6-9ac2-949766fdca28",
     "name": "Developer",
+    "is_active": false
+}
+```
+
+**Request Body: (without name)**
+```json
+{
+    "id": "ab445a56-10ed-42f6-9ac2-949766fdca28",
     "is_active": false
 }
 ```
@@ -187,6 +223,26 @@ GET /status
 ]
 ```
 
+### Get Status By Id
+Retrieve status stored in the database by id.
+
+```http
+GET /status/{id}
+```
+
+**Response:**
+```json
+{
+  "id": "7b3813e4-f9a3-4242-bd55-2f140d6654f0",
+  "name": "Waiting",
+  "is_active": true,
+  "created_by": "00000000-0000-0000-0000-000000000000",
+  "created_at": "2025-03-21T10:51:27Z",
+  "updated_by": "00000000-0000-0000-0000-000000000000",
+  "updated_at": "2025-03-21T10:52:04Z"
+}
+```
+
 ### Insert Status
 Create a status.
 
@@ -194,10 +250,18 @@ Create a status.
 POST /status
 ```
 
-**Request Body:**
+**Request Body: (without is_active)**
 ```json
 {
     "name": "Pending"
+}
+```
+
+**Request Body: (with is_active)**
+```json
+{
+    "name": "Pending",
+    "is_active": false
 }
 ```
 
@@ -221,11 +285,19 @@ Update a status.
 POST /status
 ```
 
-**Request Body:**
+**Request Body: (with name)**
 ```json
 {
     "id": "f9f6be8b-0b91-457e-9530-61ae03edd431",
     "name": "Pending",
+    "is_active": false
+}
+```
+
+**Request Body: (without name)**
+```json
+{
+    "id": "f9f6be8b-0b91-457e-9530-61ae03edd431",
     "is_active": false
 }
 ```
