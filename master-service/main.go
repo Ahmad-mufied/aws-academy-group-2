@@ -26,8 +26,10 @@ func main() {
 	route.HandleFunc("/", handler.Hello)
 	route.HandleFunc("/roles", app.RoleHandler.CreateNewRole).Methods("POST")
 	route.HandleFunc("/roles", app.RoleHandler.GetAllRoles).Methods("GET")
+	route.HandleFunc("/roles/{id}", app.RoleHandler.GetRoleByID).Methods("GET")
 	route.HandleFunc("/status", app.StatusHandler.CreateNewStatus).Methods("POST")
 	route.HandleFunc("/status", app.StatusHandler.GetAllStatus).Methods("GET")
+	route.HandleFunc("/status/{id}", app.StatusHandler.GetStatusByID).Methods("GET")
 
 	fmt.Println("Server is listening on port 8001...")
 
@@ -36,5 +38,3 @@ func main() {
 		fmt.Println("Error starting server:", err)
 	}
 }
-
-// migration file dan migration docker
