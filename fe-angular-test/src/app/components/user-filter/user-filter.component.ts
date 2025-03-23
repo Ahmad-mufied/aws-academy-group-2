@@ -8,6 +8,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-user-filter',
@@ -20,22 +23,23 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatDialogModule
+    MatDialogModule,
+    MatFormFieldModule
   ],
+  providers: [provideNativeDateAdapter()],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>Filter Users</h2>
     <mat-dialog-content>
       <mat-form-field>
-        <mat-label>Start Date</mat-label>
-        <input matInput [matDatepicker]="startPicker" [(ngModel)]="filters.startDate">
-        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>End Date</mat-label>
-        <input matInput [matDatepicker]="endPicker" [(ngModel)]="filters.endDate">
-        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate placeholder="Start date">
+          <input matEndDate placeholder="End date">
+        </mat-date-range-input>
+        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
       </mat-form-field>
       <mat-form-field>
         <mat-label>Status</mat-label>
