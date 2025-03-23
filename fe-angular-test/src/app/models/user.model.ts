@@ -1,11 +1,10 @@
 export interface User {
-  id?: string;
+  id: number; 
   name: string;
   email: string;
-  dob: Date;
+  dob: Date; 
   role: 'Admin' | 'Manager' | 'Supervisor' | 'Staff';
-  registeredDate: Date;
+  registeredDate: Date; 
   status: 'Active' | 'Inactive';
-  products?: string[];
-  dateOfBirth?: Date; 
+  products: string[]; 
 }

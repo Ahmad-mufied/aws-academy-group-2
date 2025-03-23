@@ -1,26 +1,45 @@
-<div class="container">
-    <h2>Add User</h2>
-    <form>
-      <mat-form-field class="full-width">
-        <input matInput placeholder="Name" [(ngModel)]="user.name" name="name">
-      </mat-form-field>
-  
-      <mat-form-field class="full-width">
-        <input matInput placeholder="Email" [(ngModel)]="user.email" name="email">
-      </mat-form-field>
-  
-      <mat-form-field class="full-width">
-        <input matInput placeholder="Role" [(ngModel)]="user.role" name="role">
-      </mat-form-field>
-  
-      <mat-form-field class="full-width">
-        <input matInput placeholder="Status" [(ngModel)]="user.status" name="status">
-      </mat-form-field>
-  
-      <div class="actions">
-        <button mat-button (click)="router.navigate(['/users'])">Cancel</button>
-        <button mat-raised-button color="primary" (click)="onSave()">Save</button>
-      </div>
-    </form>
-  </div>
-  
+<div class="user-add-container">
+  <h2>Add User</h2>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="fill">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" required type="email" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Date of Birth</mat-label>
+      <input matInput formControlName="dob" [matDatepicker]="picker" required />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role" required>
+        <mat-option value="Admin">Admin</mat-option>
+        <mat-option value="Manager">Manager</mat-option>
+        <mat-option value="Supervisor">Supervisor</mat-option>
+        <mat-option value="Staff">Staff</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status" required>
+        <mat-option value="Active">Active</mat-option>
+        <mat-option value="Inactive">Inactive</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="form-actions">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!userForm.valid">Add</button>
+    </div>
+  </form>
+</div>

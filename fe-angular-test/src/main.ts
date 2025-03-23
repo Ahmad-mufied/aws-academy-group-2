@@ -1,12 +1,24 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { AppComponent } from './app/app.component';
-import { provideRouter } from '@angular/router';
-import { routes } from './app/app-routing.module';
+import { provideRouter, RouterOutlet } from '@angular/router';
+import { routes } from './app/routes';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-bootstrapApplication(AppComponent, {
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    RouterOutlet, 
+    CommonModule   
+  ],
+  template: `<router-outlet></router-outlet>`
+})
+export class App {}
+
+bootstrapApplication(App, {
   providers: [
-    provideAnimations(),
-    provideRouter(routes)
+    provideRouter(routes), 
+    provideAnimations()
   ]
 }).catch(err => console.error(err));

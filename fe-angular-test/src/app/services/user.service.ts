@@ -5,32 +5,34 @@ import { User } from '../models/user.model';
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private users: User[] = [];
-  private usersSubject = new BehaviorSubject<User[]>([]);
+  private usersSubject = new BehaviorSubject<User[]>(this.loadUsersFromStorage());
+  private currentId = this.getLastUserId();
 
   constructor() {
-    this.loadUsersFromStorage();
     if (this.users.length === 0) {
-      this.users = [{
-        id: "1",
-        name: 'Joe',
-        email: 'joe@example.com',
-        dob: new Date('1996-02-12'),
-        role: 'Admin',
-        registeredDate: new Date('2025-02-12'),
-        status: 'Active',
-        products: []
-      }];
-      this.saveUsersToStorage();
+      this.users = [
+        {
+          id: this.generateUserId(),
+          name: 'Joe',
+          email: 'joe@example.com',
+          dob: new Date('1996-02-12'),
+          role: 'Admin',
+          registeredDate: new Date(),
+          status: 'Active',
+          products: []
+        }
+      ];
+      this.updateUsers();
     }
-    this.updateUsers();
   }
 
-  private loadUsersFromStorage(): void {
+  private loadUsersFromStorage(): User[] {
     const stored = localStorage.getItem('users');
-    this.users = stored ? JSON.parse(stored, (key, value) => {
-      if (key === 'dob' || key === 'registeredDate') return new Date(value);
-      return value;
-    }) : [];
+    return stored
+      ? JSON.parse(stored, (key, value) =>
+          key === 'dob' || key === 'registeredDate' ? new Date(value) : value
+        )
+      : [];
   }
 
   private saveUsersToStorage(): void {
@@ -42,14 +44,40 @@ export class UserService {
     this.saveUsersToStorage();
   }
 
+  private getLastUserId(): number {
+    const storedUsers = this.loadUsersFromStorage();
+    if (storedUsers.length === 0) return 1;
+    return Math.max(...storedUsers.map(user => user.id), 0) + 1;
+  }
+
+  private generateUserId(): number {
+    return this.currentId++;
+  }
+
   getUsers(): Observable<User[]> {
     return this.usersSubject.asObservable();
   }
 
+  getUserById(userId: number): User | undefined {
+    return this.users.find(user => user.id === userId);
+  }
+
+  getUserByIdSync(userId: number): User | null {
+    return this.users.find(user => user.id === userId) || null;
+  }
+
   addUser(user: User): void {
-    user.id = (this.users.length + 1).toString();
+    user.id = this.generateUserId();
+    user.registeredDate = new Date();
     this.users.push(user);
     this.updateUsers();
+  }
+
+  addUserSync(user: User): void {
+    if (!user.name || !user.email) {
+      throw new Error('Name and Email are required.');
+    }
+    this.addUser(user);
   }
 
   updateUser(user: User): void {
@@ -60,16 +88,28 @@ export class UserService {
     }
   }
 
-  deleteUser(id: string): void {
+  updateUserSync(user: User): void {
+    if (!user.id) {
+      throw new Error('User ID is required.');
+    }
+    this.updateUser(user);
+  }
+
+  deleteUser(id: number): void {
     this.users = this.users.filter(user => user.id !== id);
     this.updateUsers();
   }
 
-  // searchUsers(query: string): void {
-  //   const filteredUsers = this.users.filter(user =>
-  //     user.name.toLowerCase().includes(query.toLowerCase()) ||
-  //     user.email.toLowerCase().includes(query.toLowerCase())
-  //   );
-  //   this.usersSubject.next(filteredUsers);
-  // }
+  searchUsers(query: string): void {
+    const filteredUsers = this.users.filter(user =>
+      user.name.toLowerCase().includes(query.toLowerCase()) ||
+      user.email.toLowerCase().includes(query.toLowerCase())
+    );
+    this.usersSubject.next(filteredUsers);
+  }
+
+  resetUsers(): void {
+    this.users = [];
+    this.updateUsers();
+  }
 }

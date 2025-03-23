@@ -8,12 +8,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { UserFormComponent } from '../user-form/user-form.component';
-import { UserDetailComponent } from '../user-detail/user-detail.component';
 import { ProductAssignComponent } from '../product-assign/product-assign.component';
-import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { UserFilterComponent } from '../user-filter/user-filter.component';
+import { RouterModule, Router } from '@angular/router'; // ✅ Tambahkan Router
+import { UserDetailComponent } from '../user-detail/user-detail.component';
 
 @Component({
   selector: 'app-user-list',
@@ -25,7 +24,7 @@ import { UserFilterComponent } from '../user-filter/user-filter.component';
     MatIconModule,
     MatInputModule,
     FormsModule,
-    UserFilterComponent
+    RouterModule
   ],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
@@ -35,9 +34,13 @@ export class UserListComponent implements OnInit {
   filteredUsers: User[] = [];
   displayedColumns: string[] = ['name', 'email', 'role', 'status', 'actions'];
   searchQuery: string = '';
-  filters: { startDate?: Date; endDate?: Date; status?: string } = {}; // Tambah ini
+  filters: { startDate?: Date; endDate?: Date; status?: string } = {};
 
-  constructor(private userService: UserService, private dialog: MatDialog) {}
+  constructor(
+    private userService: UserService,
+    private dialog: MatDialog,
+    private router: Router 
+  ) {}
 
   ngOnInit(): void {
     this.userService.getUsers().subscribe(users => {
@@ -78,30 +81,12 @@ export class UserListComponent implements OnInit {
     });
   }
 
-  // onSearch(event: Event): void {
-  //   const query = (event.target as HTMLInputElement).value.toLowerCase();
-  //   this.filteredUsers = this.users.filter(user =>
-  //     user.name.toLowerCase().includes(query) ||
-  //     user.email.toLowerCase().includes(query)
-  //   );
-  // }
-
   openUserForm(): void {
-    const dialogRef = this.dialog.open(UserFormComponent);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.userService.addUser(result);
-      }
-    });
+    this.router.navigate(['/add']); 
   }
 
   editUser(user: User): void {
-    const dialogRef = this.dialog.open(UserFormComponent, { data: user });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.userService.updateUser(result);
-      }
-    });
+    this.router.navigate(['/edit', user.id]); 
   }
 
   viewDetails(user: User): void {
