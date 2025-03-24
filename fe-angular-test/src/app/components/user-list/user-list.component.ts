@@ -11,8 +11,9 @@ import { FormsModule } from '@angular/forms';
 import { ProductAssignComponent } from '../product-assign/product-assign.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { UserFilterComponent } from '../user-filter/user-filter.component';
-import { RouterModule, Router } from '@angular/router'; // ✅ Tambahkan Router
+import { RouterModule, Router } from '@angular/router'; 
 import { UserDetailComponent } from '../user-detail/user-detail.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-user-list',
@@ -24,7 +25,8 @@ import { UserDetailComponent } from '../user-detail/user-detail.component';
     MatIconModule,
     MatInputModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
@@ -79,6 +81,12 @@ export class UserListComponent implements OnInit {
         : true;
       return matchesSearch && matchesStartDate && matchesEndDate && matchesStatus;
     });
+  }
+
+  resetFilters(): void {
+    this.searchQuery = '';
+    this.filters = {};
+    this.applyFilters();
   }
 
   openUserForm(): void {
