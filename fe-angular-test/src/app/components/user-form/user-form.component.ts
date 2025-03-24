@@ -1,35 +1,54 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
-import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
 
-// Dialog sukses
+// Success Dialog Component
 @Component({
   selector: 'app-success-dialog',
   standalone: true,
   template: `
     <h2 mat-dialog-title>Success</h2>
-    <mat-dialog-content>User has been successfully saved!</mat-dialog-content>
-    <mat-dialog-actions>
+    <mat-dialog-content>User has been successfully {{ isEditMode ? 'updated' : 'added' }}!</mat-dialog-content>
+    <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>OK</button>
     </mat-dialog-actions>
   `,
-  imports: [
-    CommonModule, 
-    MatDialogModule, 
-    MatButtonModule
-  ]
+  imports: [CommonModule, MatDialogModule, MatButtonModule]
 })
-export class SuccessDialogComponent {}
+export class SuccessDialogComponent {
+  isEditMode: boolean = false;
+}
+
+// Confirm Cancel Dialog Component (Opsional)
+@Component({
+  selector: 'app-confirm-cancel-dialog',
+  standalone: true,
+  template: `
+    <h2 mat-dialog-title>Discard Changes?</h2>
+    <mat-dialog-content>Are you sure you want to discard your changes?</mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="dialogRef.close(false)">No</button>
+      <button mat-button color="warn" (click)="dialogRef.close(true)">Yes</button>
+    </mat-dialog-actions>
+  `,
+  imports: [CommonModule, MatDialogModule, MatButtonModule]
+})
+export class ConfirmCancelDialogComponent {
+  constructor(public dialogRef: MatDialogRef<ConfirmCancelDialogComponent>) {}
+}
 
 @Component({
   selector: 'app-user-form',
@@ -45,14 +64,14 @@ export class SuccessDialogComponent {}
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatDialogModule
+    MatDialogModule,
+    MatCardModule
   ]
 })
 export class UserFormComponent implements OnInit {
-  userForm!: FormGroup;
-  userId: number | null = null;
-  user?: User;
+  userForm: FormGroup;
   isEditMode: boolean = false;
+  userId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -60,22 +79,7 @@ export class UserFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private dialog: MatDialog
-  ) {}
-
-  ngOnInit(): void {
-    this.initForm();
-
-    // Ambil userId dari URL
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.userId = Number(id);
-        this.loadUserData();
-      }
-    });
-  }
-
-  initForm(): void {
+  ) {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -85,17 +89,27 @@ export class UserFormComponent implements OnInit {
     });
   }
 
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.isEditMode = true;
+        this.userId = Number(id);
+        this.loadUserData();
+      }
+    });
+  }
+
   loadUserData(): void {
     if (this.userId !== null) {
-      this.user = this.userService.getUserById(this.userId);
-      if (this.user) {
-        this.isEditMode = true;
+      const user = this.userService.getUserById(this.userId);
+      if (user) {
         this.userForm.patchValue({
-          name: this.user.name,
-          email: this.user.email,
-          dob: this.user.dob ? new Date(this.user.dob) : null,
-          role: this.user.role,
-          status: this.user.status
+          name: user.name,
+          email: user.email,
+          dob: user.dob ? new Date(user.dob) : null,
+          role: user.role,
+          status: user.status
         });
       }
     }
@@ -103,21 +117,32 @@ export class UserFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.userForm.valid) {
+      const formData = this.userForm.value;
       if (this.isEditMode && this.userId !== null) {
-        this.userService.updateUser({ ...this.user, ...this.userForm.value });
+        this.userService.updateUser({ id: this.userId, ...formData });
       } else {
-        this.userService.addUser(this.userForm.value);
+        this.userService.addUser(formData);
       }
 
-      this.dialog.open(SuccessDialogComponent, { width: '300px' });
+      const dialogRef = this.dialog.open(SuccessDialogComponent, {
+        width: '300px',
+        data: { isEditMode: this.isEditMode }
+      });
 
-      this.dialog.afterAllClosed.subscribe(() => {
+      dialogRef.afterClosed().subscribe(() => {
         this.router.navigate(['/users']);
       });
     }
   }
 
   onCancel(): void {
-    this.router.navigate(['/users']);
+    if (this.userForm.dirty) {
+      const dialogRef = this.dialog.open(ConfirmCancelDialogComponent, { width: '300px' });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) this.router.navigate(['/users']);
+      });
+    } else {
+      this.router.navigate(['/users']);
+    }
   }
 }

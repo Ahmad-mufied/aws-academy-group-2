@@ -1,0 +1,10 @@
+<div class="dialog-container">
+    <h2 mat-dialog-title>Confirm Deletion</h2>
+    <mat-dialog-content class="dialog-content">
+        <p>{{ data.message }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="dialog-actions">
+        <button mat-stroked-button color="primary" (click)="onNo()">No</button>
+        <button mat-raised-button color="warn" (click)="onYes()">Yes</button>
+    </mat-dialog-actions>
+</div>

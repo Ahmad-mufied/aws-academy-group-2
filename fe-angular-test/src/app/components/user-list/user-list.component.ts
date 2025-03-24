@@ -11,9 +11,10 @@ import { FormsModule } from '@angular/forms';
 import { ProductAssignComponent } from '../product-assign/product-assign.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { UserFilterComponent } from '../user-filter/user-filter.component';
-import { RouterModule, Router } from '@angular/router'; 
+import { RouterModule, Router } from '@angular/router';
 import { UserDetailComponent } from '../user-detail/user-detail.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-user-list',
@@ -26,7 +27,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatInputModule,
     FormsModule,
     RouterModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatChipsModule
   ],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
@@ -37,17 +39,25 @@ export class UserListComponent implements OnInit {
   displayedColumns: string[] = ['name', 'email', 'role', 'status', 'actions'];
   searchQuery: string = '';
   filters: { startDate?: Date; endDate?: Date; status?: string } = {};
+  isLoading: boolean = true; // Tambah untuk loading state
 
   constructor(
     private userService: UserService,
     private dialog: MatDialog,
-    private router: Router 
+    private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    this.isLoading = true;
     this.userService.getUsers().subscribe(users => {
       this.users = users;
       this.filteredUsers = users;
+      this.applyFilters();
+      this.isLoading = false;
     });
   }
 
@@ -90,15 +100,15 @@ export class UserListComponent implements OnInit {
   }
 
   openUserForm(): void {
-    this.router.navigate(['/add']); 
+    this.router.navigate(['/users/add']); // Sesuai rute baru
   }
 
   editUser(user: User): void {
-    this.router.navigate(['/edit', user.id]); 
+    this.router.navigate(['/users/edit', user.id]); // Sesuai rute baru
   }
 
   viewDetails(user: User): void {
-    this.dialog.open(UserDetailComponent, { data: user, width: '400px' });
+    this.dialog.open(UserDetailComponent, { data: user, width: '500px' });
   }
 
   assignProducts(user: User): void {
@@ -106,17 +116,20 @@ export class UserListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.userService.updateUser({ ...user, products: result });
+        this.loadUsers(); // Refresh data setelah update
       }
     });
   }
 
   deleteUser(user: User): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { message: `Are you sure you want to delete ${user.name} (ID: ${user.id})?` }
+      data: { message: `Are you sure you want to delete ${user.name} (ID: ${user.id})?` },
+      width: '300px'
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.userService.deleteUser(user.id!);
+        this.loadUsers(); // Refresh data setelah delete
       }
     });
   }

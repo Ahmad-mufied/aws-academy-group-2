@@ -46,6 +46,10 @@
   gap: 8px;
 }
 
+.table-container {
+  position: relative;
+}
+
 table {
   width: 100%;
   border-radius: 8px;
@@ -56,12 +60,25 @@ table {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+mat-chip {
+  font-size: 12px;
+  padding: 4px 8px;
+  min-height: 24px;
+}
+
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   padding: 40px;
+  color: #6b7280;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
 }
 
 @media (max-width: 768px) {
@@ -71,7 +88,6 @@ table {
   }
   .search-actions {
     margin-top: 16px;
-    justify-content: flex-start;
   }
   .search-field {
     width: 100%;
