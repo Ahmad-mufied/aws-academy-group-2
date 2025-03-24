@@ -1,31 +1,54 @@
-<h2 mat-dialog-title>User Details</h2>
-<mat-dialog-content>
-  <div class="detail-row">
-    <strong>Name:</strong> {{data.name}}
-  </div>
-  <div class="detail-row">
-    <strong>Email:</strong> {{data.email}}
-  </div>
-  <div class="detail-row">
-    <strong>Date of Birth:</strong> {{data.dob | date}}
-  </div>
-  <div class="detail-row">
-    <strong>Role:</strong> {{data.role}}
-  </div>
-  <div class="detail-row">
-    <strong>Status:</strong> {{data.status}}
-  </div>
-  <div class="detail-row">
-    <strong>Registered Date:</strong> {{data.registeredDate | date}}
-  </div>
-  <div class="detail-row">
-    <strong>Assigned Products:</strong>
-    <ul *ngIf="data.products?.length">
-      <li *ngFor="let product of data.products">{{product}}</li>
-    </ul>
-    <span *ngIf="!data.products?.length">No products assigned</span>
-  </div>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Close</button>
-</mat-dialog-actions>
+<div class="dialog-container">
+  <h2 mat-dialog-title>User Details</h2>
+  <mat-dialog-content class="dialog-content">
+    <mat-card class="user-card">
+      <mat-card-content>
+        <div class="detail-grid">
+          <div class="detail-item full-width">
+            <span class="label">Name</span>
+            <span class="value">{{data.name}}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="label">Email</span>
+            <span class="value">{{data.email}}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="label">Date of Birth</span>
+            <span class="value">{{data.dob | date:'mediumDate'}}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="label">Role</span>
+            <span class="value">{{data.role}}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="label">Status</span>
+            <span class="value">
+              <mat-chip [color]="data.status === 'Active' ? 'primary' : 'warn'" selected>
+                {{data.status}}
+              </mat-chip>
+            </span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="label">Registered Date</span>
+            <span class="value">{{data.registeredDate | date:'mediumDate'}}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="label">Assigned Products</span>
+            <span class="value">
+              <mat-list dense *ngIf="data.products?.length">
+                <mat-list-item *ngFor="let product of data.products">
+                  <mat-icon matListItemIcon>check_circle</mat-icon>
+                  {{product}}
+                </mat-list-item>
+              </mat-list>
+              <span class="no-data" *ngIf="!data.products?.length">No products assigned</span>
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-stroked-button color="primary" mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+</div>
