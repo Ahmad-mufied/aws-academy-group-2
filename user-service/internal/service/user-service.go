@@ -14,6 +14,7 @@ import (
 	exceptions "github.com/DavidAfdal/user-services/pkg/execptions"
 	"github.com/DavidAfdal/user-services/pkg/httpclient"
 	"github.com/DavidAfdal/user-services/pkg/pagination"
+	"github.com/google/uuid"
 )
 
 type UserService interface {
@@ -51,22 +52,26 @@ func (s *userService) GetUsers(input binder.GetUsersBinder) (pagination.Paginati
 	}
 
 	for _, user := range users {
-		var attributes model.AttributeResponse
 
-		// attributes, err = s.getAttributeUser(user.ID.String())
+		role, err := s.getRole(user.RoleID.String())
 
-		// if err != nil {
-		// 	return pagination.Pagination{}, err
-		// }
+		if err != nil {
+			return pagination.Pagination{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
 
-		usersResponse = append(usersResponse, model.UserResponse{ID: user.ID.String(), Name: user.Name, DoB: user.DateOfBirth.Format("2006-01-02"), Email: user.Email, Attribute: attributes, CretedAt: user.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05")})
+		status, err := s.getStatus(user.StatusID.String())
+
+		if err != nil {
+			return pagination.Pagination{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		usersResponse = append(usersResponse, model.UserResponse{ID: user.ID.String(), Name: user.Name, DoB: user.DateOfBirth.Format("2006-01-02"), Email: user.Email, Role: role, Status: status, CretedAt: user.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05")})
 	}
 
 	return pagination.Paginate(usersResponse, total, input.Page, input.Limit), nil
 }
 
 func (s *userService) GetUser(id string) (model.UserResponse, *exceptions.HTTPError) {
-	var attributes model.AttributeResponse
 
 	user, err := s.userRepo.GetUser(id)
 
@@ -77,20 +82,50 @@ func (s *userService) GetUser(id string) (model.UserResponse, *exceptions.HTTPEr
 		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	// attributes, err = s.getAttributeUser(user.ID.String())
+	role, err := s.getRole(user.RoleID.String())
 
-	// if err != nil {
-	// 	return model.UserResponse{}, err
-	// }
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
-	return model.UserResponse{ID: user.ID.String(), Name: user.Name, Email: user.Email, DoB: user.DateOfBirth.Format("2006-01-02"), CretedAt: user.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05"), Attribute: attributes}, nil
+	status, err := s.getStatus(user.StatusID.String())
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return model.UserResponse{ID: user.ID.String(), Name: user.Name, Email: user.Email, DoB: user.DateOfBirth.Format("2006-01-02"), CretedAt: user.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05"), Role: role, Status: status}, nil
 }
 
 func (s *userService) CreateUser(input binder.CreateUserBinder) (model.UserResponse, *exceptions.HTTPError) {
 
+	role, err := s.getRole(input.RoleID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	status, err := s.getStatus(input.StatusID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	roleID, err := uuid.Parse(input.RoleID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	statusID, err := uuid.Parse(input.StatusID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	DoB, _ := time.Parse("2006-01-02", input.DoB)
 
-	user := model.User{Name: input.Name, Email: input.Email, DateOfBirth: DoB}
+	user := model.User{Name: input.Name, Email: input.Email, RoleID: roleID, StatusID: statusID, DateOfBirth: DoB}
 
 	createdUser, err := s.userRepo.CreateUser(&user)
 
@@ -101,7 +136,7 @@ func (s *userService) CreateUser(input binder.CreateUserBinder) (model.UserRespo
 		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return model.UserResponse{ID: createdUser.ID.String(), Name: createdUser.Name, Email: createdUser.Email, DoB: createdUser.DateOfBirth.Format("2006-01-02")}, nil
+	return model.UserResponse{ID: createdUser.ID.String(), Name: createdUser.Name, Email: createdUser.Email, DoB: createdUser.DateOfBirth.Format("2006-01-02"), Role: role, Status: status}, nil
 }
 
 func (s *userService) UpdateUser(input binder.UpdateUserBinder) (model.UserResponse, *exceptions.HTTPError) {
@@ -112,10 +147,39 @@ func (s *userService) UpdateUser(input binder.UpdateUserBinder) (model.UserRespo
 		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusNotFound, constant.ErrUserNotFound.Error())
 	}
 
-	var attributes model.AttributeResponse
+	role, err := s.getRole(input.RoleID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	status, err := s.getStatus(input.StatusID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	DoB, _ := time.Parse("2006-01-02", input.DoB)
 
-	user := &model.User{Name: input.Name, Email: input.Email, DateOfBirth: DoB}
+	id, err := uuid.Parse(input.ID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	roleID, err := uuid.Parse(input.RoleID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	statusID, err := uuid.Parse(input.StatusID)
+
+	if err != nil {
+		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	user := &model.User{ID: id, RoleID: roleID, StatusID: statusID, Name: input.Name, Email: input.Email, DateOfBirth: DoB}
 
 	updatedUser, err := s.userRepo.UpdateUser(user)
 
@@ -123,7 +187,7 @@ func (s *userService) UpdateUser(input binder.UpdateUserBinder) (model.UserRespo
 		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return model.UserResponse{ID: updatedUser.ID.String(), Name: updatedUser.Name, Email: updatedUser.Email, DoB: updatedUser.DateOfBirth.Format("2006-01-02"), Attribute: attributes}, nil
+	return model.UserResponse{ID: updatedUser.ID.String(), Name: updatedUser.Name, Email: updatedUser.Email, DoB: updatedUser.DateOfBirth.Format("2006-01-02"), Role: role, Status: status}, nil
 }
 
 func (s *userService) DeleteUser(id string) *exceptions.HTTPError {
@@ -141,38 +205,38 @@ func (s *userService) DeleteUser(id string) *exceptions.HTTPError {
 	return nil
 }
 
-func (s *userService) getAttributeUser(id string) (model.AttributeResponse, error) {
-	var attributes model.AttributeResponse
+func (s *userService) getRole(id string) (model.RoleResponse, error) {
+	var role model.AttributeField
 
 	url := fmt.Sprintf("%s/%s", s.config.MasterApi, id)
 
 	resp, err := s.httpClient.Fetch(url)
 
 	if err != nil {
-		return model.AttributeResponse{}, err
+		return model.RoleResponse{}, err
 	}
 
-	if err := json.Unmarshal([]byte(resp), &attributes); err != nil {
-		return model.AttributeResponse{}, err
+	if err := json.Unmarshal([]byte(resp), &role); err != nil {
+		return model.RoleResponse{}, err
 	}
 
-	return attributes, nil
+	return model.RoleResponse{ID: role.ID, Name: role.Name, IsActive: role.IsActive}, nil
 }
 
-func (s *userService) assignRoleAndStatus(userID, roleID, statusID string) error {
-	var attributes model.AttributeResponse
+func (s *userService) getStatus(id string) (model.StatusResponse, error) {
+	var status model.AttributeField
 
-	bodyRequest := model.CreateAttributeReqest{UserID: userID, RoleID: roleID, StatusID: statusID}
+	url := fmt.Sprintf("%s/%s", s.config.MasterApi, id)
 
-	resp, err := s.httpClient.Post(s.config.MasterApi, bodyRequest)
+	resp, err := s.httpClient.Fetch(url)
 
 	if err != nil {
-		return err
+		return model.StatusResponse{}, err
 	}
 
-	if err := json.Unmarshal([]byte(resp), &attributes); err != nil {
-		return err
+	if err := json.Unmarshal([]byte(resp), &status); err != nil {
+		return model.StatusResponse{}, err
 	}
 
-	return nil
+	return model.StatusResponse{ID: status.ID, Name: status.Name, IsActive: status.IsActive}, nil
 }
