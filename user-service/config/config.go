@@ -8,11 +8,11 @@ import (
 )
 
 type Config struct {
-	Env         string `env:"ENV" envDefault:"dev"`
-	Port        string `env:"PORT" envDefault:"8080"`
-	Database    string `env:"DATABASE_URL"`
-	ProdouctApi string `env:"PRODUCT_API_URL"`
-	MasterApi   string `env:"MASTER_API_URL"`
+	Env        string `env:"ENV" envDefault:"dev"`
+	Port       string `env:"PORT" envDefault:"8080"`
+	Database   string `env:"DATABASE_URL"`
+	ProductApi string `env:"PRODUCT_API_URL"`
+	MasterApi  string `env:"MASTER_API_URL"`
 }
 
 func NewConfig(envPath string) (*Config, error) {
