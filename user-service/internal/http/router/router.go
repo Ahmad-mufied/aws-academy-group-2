@@ -32,5 +32,10 @@ func PublicRoutes(userHandler handler.UserHandler) []*route.Route {
 			Path:    "/users/:id",
 			Handler: userHandler.DeleteUser,
 		},
+		{
+			Method:  "POST",
+			Path:    "/users/:id/assign-products",
+			Handler: userHandler.AssignProducts,
+		},
 	}
 }

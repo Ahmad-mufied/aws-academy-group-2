@@ -19,8 +19,10 @@ func BuildPublicRoutes(db *gorm.DB, cfg *config.Config) []*route.Route {
 
 	userRepo := repository.NewUserRepository(db)
 
-	userServices := service.NewUserService(httpClient, userRepo, cfg)
+	productService := service.NewProductService(httpClient, cfg)
+	masterService := service.NewMasterService(httpClient, cfg)
 
+	userServices := service.NewUserService(userRepo, cfg, productService, masterService)
 	userHandler := handler.NewUserHandler(userServices)
 
 	return router.PublicRoutes(userHandler)

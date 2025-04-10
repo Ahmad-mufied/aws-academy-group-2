@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/DavidAfdal/user-services/internal/model"
@@ -14,6 +15,7 @@ type UserRepository interface {
 	CreateUser(user *model.User) (*model.User, error)
 	UpdateUser(user *model.User) (*model.User, error)
 	DeleteUser(id string) error
+	AssignProducts(user *model.User, productIDs []string) error
 }
 
 type userRepository struct {
@@ -87,4 +89,16 @@ func (r *userRepository) UpdateUser(user *model.User) (*model.User, error) {
 
 func (r *userRepository) DeleteUser(id string) error {
 	return r.db.Where("id = ?", id).Delete(&model.User{}).Error
+}
+
+func (r *userRepository) AssignProducts(user *model.User, productIDs []string) error {
+	jsonData, err := json.Marshal(productIDs)
+
+	if err != nil {
+		return err
+	}
+
+	user.ProductIDs = jsonData
+
+	return r.db.Save(user).Error
 }

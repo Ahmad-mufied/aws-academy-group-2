@@ -2,41 +2,43 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/DavidAfdal/user-services/config"
+	"github.com/DavidAfdal/user-services/internal/dto"
 	"github.com/DavidAfdal/user-services/internal/http/binder"
 	"github.com/DavidAfdal/user-services/internal/model"
 	"github.com/DavidAfdal/user-services/internal/repository"
 	"github.com/DavidAfdal/user-services/pkg/constant"
 	exceptions "github.com/DavidAfdal/user-services/pkg/execptions"
-	"github.com/DavidAfdal/user-services/pkg/httpclient"
 	"github.com/DavidAfdal/user-services/pkg/pagination"
 	"github.com/google/uuid"
 )
 
 type UserService interface {
 	GetUsers(input binder.GetUsersBinder) (pagination.Pagination, *exceptions.HTTPError)
-	CreateUser(input binder.CreateUserBinder) (model.UserResponse, *exceptions.HTTPError)
-	GetUser(id string) (model.UserResponse, *exceptions.HTTPError)
-	UpdateUser(input binder.UpdateUserBinder) (model.UserResponse, *exceptions.HTTPError)
+	CreateUser(input binder.CreateUserBinder) (dto.UserResponse, *exceptions.HTTPError)
+	GetUser(id string) (dto.UserResponse, *exceptions.HTTPError)
+	UpdateUser(input binder.UpdateUserBinder) (dto.UserResponse, *exceptions.HTTPError)
 	DeleteUser(id string) *exceptions.HTTPError
+	AssignProducts(input binder.AssignProductsBinder) *exceptions.HTTPError
 }
 
 type userService struct {
-	httpClient *httpclient.HTTPClient
-	userRepo   repository.UserRepository
-	config     *config.Config
+	config         *config.Config
+	userRepo       repository.UserRepository
+	productService ProductService
+	masterService  MasterService
 }
 
-func NewUserService(httpClient *httpclient.HTTPClient, userRepo repository.UserRepository, config *config.Config) UserService {
-	return &userService{httpClient: httpClient, userRepo: userRepo, config: config}
+func NewUserService(userRepo repository.UserRepository, config *config.Config, productService ProductService, masterService MasterService) UserService {
+	return &userService{userRepo: userRepo, config: config, productService: productService, masterService: masterService}
 }
 
 func (s *userService) GetUsers(input binder.GetUsersBinder) (pagination.Pagination, *exceptions.HTTPError) {
-	usersResponse := make([]model.UserResponse, 0)
 
 	if input.Limit == 0 {
 		input.Limit = 10
@@ -45,82 +47,66 @@ func (s *userService) GetUsers(input binder.GetUsersBinder) (pagination.Paginati
 	if input.Page == 0 {
 		input.Page = 1
 	}
+
 	users, total, err := s.userRepo.GetUsers(input.Search, input.Page, input.Limit, input.StartDate, input.EndDate)
 
 	if err != nil {
 		return pagination.Pagination{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	for _, user := range users {
+	usersResponse, err := s.usersWithAttributes(users)
 
-		role, err := s.getRole(user.RoleID.String())
-
-		if err != nil {
-			return pagination.Pagination{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-
-		status, err := s.getStatus(user.StatusID.String())
-
-		if err != nil {
-			return pagination.Pagination{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-
-		usersResponse = append(usersResponse, model.UserResponse{ID: user.ID.String(), Name: user.Name, DoB: user.DateOfBirth.Format("2006-01-02"), Email: user.Email, Role: role, Status: status, CretedAt: user.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05")})
+	if err != nil {
+		return pagination.Pagination{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return pagination.Paginate(usersResponse, total, input.Page, input.Limit), nil
 }
 
-func (s *userService) GetUser(id string) (model.UserResponse, *exceptions.HTTPError) {
+func (s *userService) GetUser(id string) (dto.UserResponse, *exceptions.HTTPError) {
 
 	user, err := s.userRepo.GetUser(id)
 
 	if err != nil {
 		if err == constant.ErrUserNotFound {
-			return model.UserResponse{}, exceptions.NewHTTPError(http.StatusNotFound, constant.ErrUserNotFound.Error())
+			return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusNotFound, constant.ErrUserNotFound.Error())
 		}
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	role, err := s.getRole(user.RoleID.String())
+	userResponse, err := s.userWithAttributes(*user)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	status, err := s.getStatus(user.StatusID.String())
-
-	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	return model.UserResponse{ID: user.ID.String(), Name: user.Name, Email: user.Email, DoB: user.DateOfBirth.Format("2006-01-02"), CretedAt: user.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05"), Role: role, Status: status}, nil
+	return userResponse, nil
 }
 
-func (s *userService) CreateUser(input binder.CreateUserBinder) (model.UserResponse, *exceptions.HTTPError) {
+func (s *userService) CreateUser(input binder.CreateUserBinder) (dto.UserResponse, *exceptions.HTTPError) {
 
-	role, err := s.getRole(input.RoleID)
+	role, err := s.masterService.GetRoleByID(input.RoleID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusNotFound, "Role not found")
 	}
 
-	status, err := s.getStatus(input.StatusID)
+	status, err := s.masterService.GetStatusByID(input.StatusID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusNotFound, "Status not found")
 	}
 
-	roleID, err := uuid.Parse(input.RoleID)
+	roleID, err := uuid.Parse(role.ID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	statusID, err := uuid.Parse(input.StatusID)
+	statusID, err := uuid.Parse(status.ID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	DoB, _ := time.Parse("2006-01-02", input.DoB)
@@ -131,32 +117,35 @@ func (s *userService) CreateUser(input binder.CreateUserBinder) (model.UserRespo
 
 	if err != nil {
 		if err == constant.ErrUserExists {
-			return model.UserResponse{}, exceptions.NewHTTPError(http.StatusConflict, constant.ErrUserExists.Error())
+			return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusConflict, constant.ErrUserExists.Error())
 		}
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return model.UserResponse{ID: createdUser.ID.String(), Name: createdUser.Name, Email: createdUser.Email, DoB: createdUser.DateOfBirth.Format("2006-01-02"), Role: role, Status: status}, nil
+	return createdUser.ToDto(dto.AttributeResponse{
+		Role:   *role,
+		Status: *status,
+	}, []dto.Product{}), nil
 }
 
-func (s *userService) UpdateUser(input binder.UpdateUserBinder) (model.UserResponse, *exceptions.HTTPError) {
+func (s *userService) UpdateUser(input binder.UpdateUserBinder) (dto.UserResponse, *exceptions.HTTPError) {
 
 	_, err := s.userRepo.GetUser(input.ID)
 
 	if err != nil && err == constant.ErrUserNotFound {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusNotFound, constant.ErrUserNotFound.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusNotFound, constant.ErrUserNotFound.Error())
 	}
 
-	role, err := s.getRole(input.RoleID)
+	role, err := s.masterService.GetRoleByID(input.RoleID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	status, err := s.getStatus(input.StatusID)
+	status, err := s.masterService.GetStatusByID(input.StatusID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	DoB, _ := time.Parse("2006-01-02", input.DoB)
@@ -164,19 +153,19 @@ func (s *userService) UpdateUser(input binder.UpdateUserBinder) (model.UserRespo
 	id, err := uuid.Parse(input.ID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	roleID, err := uuid.Parse(input.RoleID)
+	roleID, err := uuid.Parse(role.ID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	statusID, err := uuid.Parse(input.StatusID)
+	statusID, err := uuid.Parse(status.ID)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	user := &model.User{ID: id, RoleID: roleID, StatusID: statusID, Name: input.Name, Email: input.Email, DateOfBirth: DoB}
@@ -184,10 +173,10 @@ func (s *userService) UpdateUser(input binder.UpdateUserBinder) (model.UserRespo
 	updatedUser, err := s.userRepo.UpdateUser(user)
 
 	if err != nil {
-		return model.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return model.UserResponse{ID: updatedUser.ID.String(), Name: updatedUser.Name, Email: updatedUser.Email, DoB: updatedUser.DateOfBirth.Format("2006-01-02"), Role: role, Status: status}, nil
+	return updatedUser.ToDto(dto.AttributeResponse{}, []dto.Product{}), nil
 }
 
 func (s *userService) DeleteUser(id string) *exceptions.HTTPError {
@@ -205,38 +194,106 @@ func (s *userService) DeleteUser(id string) *exceptions.HTTPError {
 	return nil
 }
 
-func (s *userService) getRole(id string) (model.RoleResponse, error) {
-	var role model.AttributeField
+func (s *userService) AssignProducts(input binder.AssignProductsBinder) *exceptions.HTTPError {
 
-	url := fmt.Sprintf("%s/%s", s.config.MasterApi, id)
+	user, err := s.userRepo.GetUser(input.UserID)
 
-	resp, err := s.httpClient.Fetch(url)
-
-	if err != nil {
-		return model.RoleResponse{}, err
+	if err != nil && err == constant.ErrUserNotFound {
+		return exceptions.NewHTTPError(http.StatusNotFound, constant.ErrUserNotFound.Error())
 	}
 
-	if err := json.Unmarshal([]byte(resp), &role); err != nil {
-		return model.RoleResponse{}, err
+	if productExits := s.productService.CheckProductExists(input.ProductIds); !productExits {
+		return exceptions.NewHTTPError(http.StatusNotFound, "Product not found")
 	}
 
-	return model.RoleResponse{ID: role.ID, Name: role.Name, IsActive: role.IsActive}, nil
+	if err := s.userRepo.AssignProducts(user, input.ProductIds); err != nil {
+		return exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return nil
 }
 
-func (s *userService) getStatus(id string) (model.StatusResponse, error) {
-	var status model.AttributeField
+func (s *userService) usersWithAttributes(users []model.User) ([]dto.UserResponse, error) {
+	userResponse := make([]dto.UserResponse, 0)
 
-	url := fmt.Sprintf("%s/%s", s.config.MasterApi, id)
+	if len(users) == 0 {
+		return userResponse, nil
+	}
 
-	resp, err := s.httpClient.Fetch(url)
+	roles, errRoles := s.masterService.GetRoles()
+	status, errProducts := s.masterService.GetStatus()
+
+	if errRoles != nil || errProducts != nil {
+		return nil, errors.New("internal server error")
+	}
+
+	for _, user := range users {
+		var productIDs []string
+
+		if len(user.ProductIDs) == 0 || string(user.ProductIDs) == "null" {
+			productIDs = []string{}
+		} else {
+			err := json.Unmarshal(user.ProductIDs, &productIDs)
+			if err != nil {
+				fmt.Println("Error unmarshalling:", err)
+				return nil, err
+			}
+		}
+
+		role := s.masterService.FilterRoleByID(user.RoleID.String(), roles)
+
+		statusData := s.masterService.FilterStatusByID(user.StatusID.String(), status)
+
+		response := user.ToDto(dto.AttributeResponse{
+			Role:   role,
+			Status: statusData,
+		}, []dto.Product{})
+
+		userResponse = append(userResponse, response)
+
+	}
+
+	return userResponse, nil
+}
+
+func (s *userService) userWithAttributes(user model.User) (dto.UserResponse, error) {
+
+	products, err := s.productService.GetProducts()
 
 	if err != nil {
-		return model.StatusResponse{}, err
+		return dto.UserResponse{}, err
 	}
 
-	if err := json.Unmarshal([]byte(resp), &status); err != nil {
-		return model.StatusResponse{}, err
+	var productIDs []string
+
+	if len(user.ProductIDs) == 0 || string(user.ProductIDs) == "null" {
+		productIDs = []string{}
+	} else {
+		err := json.Unmarshal(user.ProductIDs, &productIDs)
+		if err != nil {
+			fmt.Println("Error unmarshalling:", err)
+			return dto.UserResponse{}, err
+		}
 	}
 
-	return model.StatusResponse{ID: status.ID, Name: status.Name, IsActive: status.IsActive}, nil
+	productData := s.productService.FilterByIDs(productIDs, products)
+
+	role, err := s.masterService.GetRoleByID(user.RoleID.String())
+
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+
+	status, err := s.masterService.GetStatusByID(user.StatusID.String())
+
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+
+	response := user.ToDto(dto.AttributeResponse{
+		Role:   *role,
+		Status: *status,
+	}, productData)
+
+	return response, nil
 }

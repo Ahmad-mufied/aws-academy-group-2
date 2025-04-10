@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/DavidAfdal/user-services/internal/dto"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -25,4 +26,16 @@ func (User) TableName() string { return "users" }
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	user.ID = uuid.New()
 	return
+}
+func (user *User) ToDto(attribute dto.AttributeResponse, products []dto.Product) dto.UserResponse {
+	return dto.UserResponse{
+		ID:        user.ID.String(),
+		Name:      user.Name,
+		Email:     user.Email,
+		DoB:       user.DateOfBirth.Format("2006-01-02"),
+		Attribute: attribute,
+		CretedAt:  user.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05"),
+		Product:   products,
+	}
 }

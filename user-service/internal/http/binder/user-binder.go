@@ -24,3 +24,8 @@ type CreateUserBinder struct {
 	RoleID   string `json:"role_id" validate:"required"`
 	StatusID string `json:"status_id" validate:"required"`
 }
+
+type AssignProductsBinder struct {
+	UserID     string   `param:"id" validate:"required"`
+	ProductIds []string `json:"product_ids" validate:"required"`
+}

@@ -172,7 +172,7 @@ func (r *UserHandler) UpdateUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 200 {object} swagger.DeletedResponse
+// @Success 204 {object} swagger.DeletedResponse
 // @Failure 404 {object} swagger.NotFoundResponse
 // @Failure 500 {object} swagger.InternalServerErrorResponse
 // @Router /users/{id} [delete]
@@ -186,6 +186,39 @@ func (r *UserHandler) DeleteUser(c echo.Context) error {
 
 	logger.Info(c, "Successfully deleted user in DeleteUser")
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Successfully deleted user", nil))
+}
+
+// AssignProducts godoc
+// @Summary Assign products to user
+// @Description Assign products to user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 204 {object} swagger.DeletedResponse
+// @Failure 404 {object} swagger.NotFoundResponse
+// @Failure 500 {object} swagger.InternalServerErrorResponse
+// @Router /users/{id} [delete]
+func (r *UserHandler) AssignProducts(c echo.Context) error {
+	var input binder.AssignProductsBinder
+
+	if err := c.Bind(&input); err != nil {
+		logger.Error(c, "Failed to bind request in AssignProducts")
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+	}
+
+	if errorMessage, data := checkValidation(input); errorMessage != "" {
+		logger.Warn(c, "Validation failed in AssignProducts: "+errorMessage)
+		return c.JSON(http.StatusBadRequest, response.SuccessResponse(http.StatusBadRequest, errorMessage, data))
+	}
+
+	if err := r.userService.AssignProducts(input); err != nil {
+		logger.Error(c, err.Error())
+		return c.JSON(err.StatusCode, response.ErrorResponse(err.StatusCode, err.Message))
+	}
+
+	logger.Info(c, "Successfully assigned products to user in AssignProducts")
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Successfully assigned products to user", nil))
 }
 
 func checkValidation(input interface{}) (errorMessage string, data interface{}) {
