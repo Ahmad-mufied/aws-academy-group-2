@@ -26,10 +26,20 @@ func (c *HTTPClient) Fetch(url string) (string, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("error reading response body: %w", err)
 	}
+
+	if len(body) == 0 {
+		return "", fmt.Errorf("response body is empty")
+	}
+
+	fmt.Println("[DEBUG] Raw response body:", string(body)) // Untuk debugging
 
 	return string(body), nil
 }
