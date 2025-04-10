@@ -176,7 +176,10 @@ func (s *userService) UpdateUser(input binder.UpdateUserBinder) (dto.UserRespons
 		return dto.UserResponse{}, exceptions.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return updatedUser.ToDto(dto.AttributeResponse{}, []dto.Product{}), nil
+	return updatedUser.ToDto(dto.AttributeResponse{
+		Role:   *role,
+		Status: *status,
+	}, []dto.Product{}), nil
 }
 
 func (s *userService) DeleteUser(id string) *exceptions.HTTPError {

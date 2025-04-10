@@ -80,10 +80,15 @@ func (r *userRepository) CreateUser(user *model.User) (*model.User, error) {
 }
 
 func (r *userRepository) UpdateUser(user *model.User) (*model.User, error) {
-	if err := r.db.Save(user).Error; err != nil {
+	if err := r.db.Model(&model.User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
+		"name":          user.Name,
+		"email":         user.Email,
+		"date_of_birth": user.DateOfBirth,
+		"role_id":       user.RoleID,
+		"status_id":     user.StatusID,
+	}).Error; err != nil {
 		return nil, err
 	}
-
 	return user, nil
 }
 
