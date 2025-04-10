@@ -3,7 +3,6 @@ package repository
 import (
 	"errors"
 	"master-service/model/entity"
-	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,6 +10,7 @@ import (
 
 type RoleRepository interface {
 	CreateRole(role *entity.Role) error
+	UpdateRole(role *entity.Role) error
 	FindAllRoles() ([]entity.Role, error)
 	FindRoleByID(id uuid.UUID) (*entity.Role, error)
 }
@@ -20,43 +20,26 @@ type roleRepository struct {
 }
 
 func (r *roleRepository) CreateRole(role *entity.Role) error {
+	return r.db.Create(role).Error
+}
+
+func (r *roleRepository) UpdateRole(role *entity.Role) error {
 	var existing entity.Role
+	if err := r.db.First(&existing, "id = ?", role.ID).Error; err != nil {
+		return err
+	}
 
-	// Create new role
-	if role.ID == uuid.Nil {
-		if role.Name == "" {
-			return errors.New("role name cannot be empty")
-		}
-
-		// Check if name already exists
-		if err := r.db.Where("name = ?", role.Name).First(&existing).Error; err == nil {
+	// Cek duplikasi name jika nama berubah
+	if role.Name != existing.Name {
+		var duplicate entity.Role
+		if err := r.db.First(&duplicate, "name = ?", role.Name).Error; err == nil {
 			return errors.New("role name already exists")
 		}
-
-		// Assign new ID and timestamps
-		role.ID = uuid.New()
-		role.CreatedAt = time.Now()
-		role.UpdatedAt = time.Now()
-
-		return r.db.Create(&role).Error
 	}
 
-	// Update role
-	if err := r.db.Where("id = ?", role.ID).First(&existing).Error; err != nil {
-		return errors.New("role not found")
-	}
-
-	// Prevent name duplication with another existing role
-	if role.Name != "" && role.Name != existing.Name {
-		var duplicateCheck entity.Status
-		if err := r.db.Where("name = ?", role.Name).First(&duplicateCheck).Error; err == nil {
-			return errors.New("role name already exists")
-		}
-		existing.Name = role.Name
-	}
-
+	existing.Name = role.Name
 	existing.IsActive = role.IsActive
-	existing.UpdatedAt = time.Now()
+	existing.UpdatedBy = role.UpdatedBy
 
 	return r.db.Omit("created_at").Save(&existing).Error
 }

@@ -3,9 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"master-service/dto"
 	"master-service/model/entity"
 	"master-service/repository"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -23,43 +26,74 @@ type statusHandler struct {
 }
 
 func (h *statusHandler) CreateNewStatus(w http.ResponseWriter, r *http.Request) {
-	var requestData map[string]interface{}
+	var req dto.CreateOrUpdateStatusRequest
 	var status entity.Status
 
-	// Decode request body
-	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+	// decode request ke struct DTO
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	// Convert map back to struct
-	requestBody, _ := json.Marshal(requestData)
-	json.Unmarshal(requestBody, &status)
-
-	// Ensure is_active defaults to true only if not provided in the request
-	if _, exists := requestData["is_active"]; !exists {
-		status.IsActive = true
-	}
-
-	// Input validation
-	if status.ID == uuid.Nil && status.Name == "" {
+	// Cek validitas input
+	if (req.ID == nil || *req.ID == uuid.Nil) && strings.TrimSpace(req.Name) == "" {
 		http.Error(w, "Status name cannot be empty", http.StatusBadRequest)
 		return
 	}
 
-	// save status to database
-	if err := h.repo.CreateStatus(&status); err != nil {
-		http.Error(w, "Failed to create status", http.StatusInternalServerError)
+	// Mapping ke entity.Status
+	if req.ID != nil {
+		status.ID = *req.ID
+	}
+	status.Name = req.Name
+
+	if req.IsActive != nil {
+		status.IsActive = *req.IsActive
+	} else {
+		status.IsActive = true
+	}
+
+	now := time.Now()
+
+	if status.ID == uuid.Nil {
+		// Create case
+		status.ID = uuid.New()
+		status.CreatedAt = now
+		status.UpdatedAt = now
+
+		if req.CreatedBy != nil {
+			status.CreatedBy = *req.CreatedBy
+			status.UpdatedBy = *req.CreatedBy
+		}
+	} else {
+		// Update case
+		status.UpdatedAt = now
+
+		if req.UpdatedBy != nil {
+			status.UpdatedBy = *req.UpdatedBy
+		}
+	}
+
+	// Save via repo
+	var err error
+	if status.ID == uuid.Nil {
+		err = h.repo.CreateStatus(&status)
+	} else {
+		err = h.repo.UpdateStatus(&status)
+	}
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Ambil data final dari DB
 	newestStatus, err := h.repo.FindStatusByID(status.ID)
 	if err != nil {
 		http.Error(w, "Failed to fetch updated status", http.StatusInternalServerError)
 		return
 	}
 
-	// response success
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(newestStatus); err != nil {

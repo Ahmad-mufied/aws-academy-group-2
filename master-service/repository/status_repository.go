@@ -3,7 +3,6 @@ package repository
 import (
 	"errors"
 	"master-service/model/entity"
-	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,6 +10,7 @@ import (
 
 type StatusRepository interface {
 	CreateStatus(status *entity.Status) error
+	UpdateStatus(status *entity.Status) error
 	FindAllStatus() ([]entity.Status, error)
 	FindStatusByID(id uuid.UUID) (*entity.Status, error)
 }
@@ -20,43 +20,26 @@ type statusRepository struct {
 }
 
 func (r *statusRepository) CreateStatus(status *entity.Status) error {
+	return r.db.Create(status).Error
+}
+
+func (r *statusRepository) UpdateStatus(status *entity.Status) error {
 	var existing entity.Status
+	if err := r.db.First(&existing, "id = ?", status.ID).Error; err != nil {
+		return err
+	}
 
-	// Create new status
-	if status.ID == uuid.Nil {
-		if status.Name == "" {
-			return errors.New("status name cannot be empty")
-		}
-
-		// Check if name already exists
-		if err := r.db.Where("name = ?", status.Name).First(&existing).Error; err == nil {
+	// Cek duplikasi name jika nama berubah
+	if status.Name != existing.Name {
+		var duplicate entity.Status
+		if err := r.db.First(&duplicate, "name = ?", status.Name).Error; err == nil {
 			return errors.New("status name already exists")
 		}
-
-		// Assign new ID and timestamps
-		status.ID = uuid.New()
-		status.CreatedAt = time.Now()
-		status.UpdatedAt = time.Now()
-
-		return r.db.Create(&status).Error
 	}
 
-	// Update status
-	if err := r.db.Where("id = ?", status.ID).First(&existing).Error; err != nil {
-		return errors.New("status not found")
-	}
-
-	// Prevent name duplication with another existing status
-	if status.Name != "" && status.Name != existing.Name {
-		var duplicateCheck entity.Status
-		if err := r.db.Where("name = ?", status.Name).First(&duplicateCheck).Error; err == nil {
-			return errors.New("status name already exists")
-		}
-		existing.Name = status.Name
-	}
-
+	existing.Name = status.Name
 	existing.IsActive = status.IsActive
-	existing.UpdatedAt = time.Now()
+	existing.UpdatedBy = status.UpdatedBy
 
 	return r.db.Omit("created_at").Save(&existing).Error
 }

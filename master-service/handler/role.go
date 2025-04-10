@@ -3,9 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"master-service/dto"
 	"master-service/model/entity"
 	"master-service/repository"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -23,44 +26,74 @@ type roleHandler struct {
 }
 
 func (h *roleHandler) CreateNewRole(w http.ResponseWriter, r *http.Request) {
-	var requestData map[string]interface{}
+	var req dto.CreateOrUpdateRoleRequest
 	var role entity.Role
 
-	// decode request body
-	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+	// decode request ke struct DTO
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	// Convert map back to struct
-	requestBody, _ := json.Marshal(requestData)
-	json.Unmarshal(requestBody, &role)
-
-	// Ensure is_active defaults to true only if not provided in the request
-	if _, exists := requestData["is_active"]; !exists {
-		role.IsActive = true
-	}
-
-	// input validation
-	if role.ID == uuid.Nil && role.Name == "" {
+	// Cek validitas input
+	if (req.ID == nil || *req.ID == uuid.Nil) && strings.TrimSpace(req.Name) == "" {
 		http.Error(w, "Role name cannot be empty", http.StatusBadRequest)
 		return
 	}
 
-	// save role to database
-	if err := h.repo.CreateRole(&role); err != nil {
-		http.Error(w, "Failed to create role", http.StatusInternalServerError)
+	// Mapping ke entity.Role
+	if req.ID != nil {
+		role.ID = *req.ID
+	}
+	role.Name = req.Name
+
+	if req.IsActive != nil {
+		role.IsActive = *req.IsActive
+	} else {
+		role.IsActive = true
+	}
+
+	now := time.Now()
+
+	if role.ID == uuid.Nil {
+		// Create case
+		role.ID = uuid.New()
+		role.CreatedAt = now
+		role.UpdatedAt = now
+
+		if req.CreatedBy != nil {
+			role.CreatedBy = *req.CreatedBy
+			role.UpdatedBy = *req.CreatedBy
+		}
+	} else {
+		// Update case
+		role.UpdatedAt = now
+
+		if req.UpdatedBy != nil {
+			role.UpdatedBy = *req.UpdatedBy
+		}
+	}
+
+	// Save via repo
+	var err error
+	if role.ID == uuid.Nil {
+		err = h.repo.CreateRole(&role)
+	} else {
+		err = h.repo.UpdateRole(&role)
+	}
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// get data by id
+	// Ambil data final dari DB
 	newestRole, err := h.repo.FindRoleByID(role.ID)
 	if err != nil {
-		http.Error(w, "Failed to fetch updated status", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch updated role", http.StatusInternalServerError)
 		return
 	}
 
-	// response success
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(newestRole); err != nil {
