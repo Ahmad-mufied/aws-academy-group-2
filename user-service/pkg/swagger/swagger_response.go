@@ -36,18 +36,50 @@ type MetaInternalServerError struct {
 	Code    int    `json:"code" example:"500"`
 	Message string `json:"message" example:"Internal server error"`
 }
+type AttributeResponse struct {
+	Role   RoleResponse   `json:"role"`
+	Status StatusResponse `json:"status"`
+}
 
-type User struct {
-	ID          string `json:"id" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
-	Name        string `json:"name" example:"David Afdal"`
-	Email       string `json:"email" example:"david.afdal@example.com"`
-	DateOfBirth string `json:"date_of_birth" example:"2000-01-01"`
-	Attribute   struct {
-		Role   string `json:"role" example:"admin"`
-		Status string `json:"status" example:"active"`
-	} `json:"attribute"`
+type RoleResponse struct {
+	ID        string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Name      string `json:"name" example:"admin"`
+	IsActive  bool   `json:"is_active" example:"true"`
 	CreatedAt string `json:"created_at" example:"2025-03-10 17:31:48"`
 	UpdatedAt string `json:"updated_at" example:"2025-03-10 17:31:48"`
+	CreatedBy string `json:"created_by" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
+	UpdatedBy string `json:"updated_by" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
+}
+
+type StatusResponse struct {
+	ID        string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Name      string `json:"name" example:"inactive"`
+	IsActive  bool   `json:"is_active" example:"false"`
+	CreatedAt string `json:"created_at" example:"2025-03-10 17:31:48"`
+	UpdatedAt string `json:"updated_at" example:"2025-03-10 17:31:48"`
+	CreatedBy string `json:"created_by" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
+	UpdatedBy string `json:"updated_by" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
+}
+
+type ProductsResponse struct {
+	ProductID string `json:"product_id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Name      string `json:"name" example:"Product 1"`
+	IsActive  bool   `json:"is_active" example:"true"`
+	CreatedAt string `json:"created_at" example:"2025-03-10 17:31:48"`
+	UpdatedAt string `json:"updated_at" example:"2025-03-10 17:31:48"`
+	CreatedBy string `json:"created_by" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
+	UpdatedBy string `json:"updated_by" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
+}
+
+type User struct {
+	ID          string             `json:"id" example:"e1107b61-3531-4834-be96-a2cf981bced9"`
+	Name        string             `json:"name" example:"David Afdal"`
+	Email       string             `json:"email" example:"david.afdal@example.com"`
+	DateOfBirth string             `json:"date_of_birth" example:"2000-01-01"`
+	Attribute   AttributeResponse  `json:"attribute"`
+	Products    []ProductsResponse `json:"products"`
+	CreatedAt   string             `json:"created_at" example:"2025-03-10 17:31:48"`
+	UpdatedAt   string             `json:"updated_at" example:"2025-03-10 17:31:48"`
 }
 
 type ValidationErrorData struct {

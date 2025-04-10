@@ -1,5 +1,12 @@
 basePath: /api/v1
 definitions:
+  swagger.AttributeResponse:
+    properties:
+      role:
+        $ref: '#/definitions/swagger.RoleResponse'
+      status:
+        $ref: '#/definitions/swagger.StatusResponse'
+    type: object
   swagger.ConflictResponse:
     properties:
       data:
@@ -126,12 +133,84 @@ definitions:
       meta:
         $ref: '#/definitions/swagger.MetaNotFound'
     type: object
+  swagger.ProductsResponse:
+    properties:
+      created_at:
+        example: "2025-03-10 17:31:48"
+        type: string
+      created_by:
+        example: e1107b61-3531-4834-be96-a2cf981bced9
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      name:
+        example: Product 1
+        type: string
+      product_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      updated_at:
+        example: "2025-03-10 17:31:48"
+        type: string
+      updated_by:
+        example: e1107b61-3531-4834-be96-a2cf981bced9
+        type: string
+    type: object
+  swagger.RoleResponse:
+    properties:
+      created_at:
+        example: "2025-03-10 17:31:48"
+        type: string
+      created_by:
+        example: e1107b61-3531-4834-be96-a2cf981bced9
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      name:
+        example: admin
+        type: string
+      updated_at:
+        example: "2025-03-10 17:31:48"
+        type: string
+      updated_by:
+        example: e1107b61-3531-4834-be96-a2cf981bced9
+        type: string
+    type: object
   swagger.SingleUserResponse:
     properties:
       data:
         $ref: '#/definitions/swagger.User'
       meta:
         $ref: '#/definitions/swagger.Meta'
+    type: object
+  swagger.StatusResponse:
+    properties:
+      created_at:
+        example: "2025-03-10 17:31:48"
+        type: string
+      created_by:
+        example: e1107b61-3531-4834-be96-a2cf981bced9
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      is_active:
+        example: false
+        type: boolean
+      name:
+        example: inactive
+        type: string
+      updated_at:
+        example: "2025-03-10 17:31:48"
+        type: string
+      updated_by:
+        example: e1107b61-3531-4834-be96-a2cf981bced9
+        type: string
     type: object
   swagger.UpdateUserRequest:
     properties:
@@ -154,14 +233,7 @@ definitions:
   swagger.User:
     properties:
       attribute:
-        properties:
-          role:
-            example: admin
-            type: string
-          status:
-            example: active
-            type: string
-        type: object
+        $ref: '#/definitions/swagger.AttributeResponse'
       created_at:
         example: "2025-03-10 17:31:48"
         type: string
@@ -177,6 +249,10 @@ definitions:
       name:
         example: David Afdal
         type: string
+      products:
+        items:
+          $ref: '#/definitions/swagger.ProductsResponse'
+        type: array
       updated_at:
         example: "2025-03-10 17:31:48"
         type: string
@@ -309,8 +385,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
           schema:
             $ref: '#/definitions/swagger.DeletedResponse'
         "404":
@@ -388,6 +464,33 @@ paths:
           schema:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       summary: Update user details
+      tags:
+      - Users
+  /users/{id}/assign-products:
+    post:
+      consumes:
+      - application/json
+      description: Assign products to user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      summary: Assign products to user
       tags:
       - Users
 swagger: "2.0"

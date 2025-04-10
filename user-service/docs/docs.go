@@ -248,8 +248,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "204": {
+                        "description": "No Content",
                         "schema": {
                             "$ref": "#/definitions/swagger.DeletedResponse"
                         }
@@ -268,9 +268,61 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/{id}/assign-products": {
+            "post": {
+                "description": "Assign products to user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Assign products to user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "swagger.AttributeResponse": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "$ref": "#/definitions/swagger.RoleResponse"
+                },
+                "status": {
+                    "$ref": "#/definitions/swagger.StatusResponse"
+                }
+            }
+        },
         "swagger.ConflictResponse": {
             "type": "object",
             "properties": {
@@ -454,6 +506,72 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.ProductsResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                },
+                "created_by": {
+                    "type": "string",
+                    "example": "e1107b61-3531-4834-be96-a2cf981bced9"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Product 1"
+                },
+                "product_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                },
+                "updated_by": {
+                    "type": "string",
+                    "example": "e1107b61-3531-4834-be96-a2cf981bced9"
+                }
+            }
+        },
+        "swagger.RoleResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                },
+                "created_by": {
+                    "type": "string",
+                    "example": "e1107b61-3531-4834-be96-a2cf981bced9"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "admin"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                },
+                "updated_by": {
+                    "type": "string",
+                    "example": "e1107b61-3531-4834-be96-a2cf981bced9"
+                }
+            }
+        },
         "swagger.SingleUserResponse": {
             "type": "object",
             "properties": {
@@ -462,6 +580,39 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/swagger.Meta"
+                }
+            }
+        },
+        "swagger.StatusResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                },
+                "created_by": {
+                    "type": "string",
+                    "example": "e1107b61-3531-4834-be96-a2cf981bced9"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "type": "string",
+                    "example": "inactive"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2025-03-10 17:31:48"
+                },
+                "updated_by": {
+                    "type": "string",
+                    "example": "e1107b61-3531-4834-be96-a2cf981bced9"
                 }
             }
         },
@@ -494,17 +645,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "attribute": {
-                    "type": "object",
-                    "properties": {
-                        "role": {
-                            "type": "string",
-                            "example": "admin"
-                        },
-                        "status": {
-                            "type": "string",
-                            "example": "active"
-                        }
-                    }
+                    "$ref": "#/definitions/swagger.AttributeResponse"
                 },
                 "created_at": {
                     "type": "string",
@@ -525,6 +666,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "David Afdal"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.ProductsResponse"
+                    }
                 },
                 "updated_at": {
                     "type": "string",

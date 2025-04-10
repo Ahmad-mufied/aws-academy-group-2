@@ -195,10 +195,10 @@ func (r *UserHandler) DeleteUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 204 {object} swagger.DeletedResponse
+// @Success 204 "No Content"
 // @Failure 404 {object} swagger.NotFoundResponse
 // @Failure 500 {object} swagger.InternalServerErrorResponse
-// @Router /users/{id} [delete]
+// @Router /users/{id}/assign-products [post]
 func (r *UserHandler) AssignProducts(c echo.Context) error {
 	var input binder.AssignProductsBinder
 
