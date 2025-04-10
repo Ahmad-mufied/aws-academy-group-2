@@ -1,5 +1,14 @@
 basePath: /api/v1
 definitions:
+  swagger.AssignProductsRequest:
+    properties:
+      product_ids:
+        example:
+        - 550e8400-e29b-41d4-a716-446655440000
+        items:
+          type: string
+        type: array
+    type: object
   swagger.AttributeResponse:
     properties:
       role:
@@ -39,14 +48,6 @@ definitions:
         $ref: '#/definitions/swagger.User'
       meta:
         $ref: '#/definitions/swagger.MetaCreated'
-    type: object
-  swagger.DeletedResponse:
-    properties:
-      data:
-        example: "null"
-        type: string
-      meta:
-        $ref: '#/definitions/swagger.Meta'
     type: object
   swagger.InternalServerErrorResponse:
     properties:
@@ -387,8 +388,6 @@ paths:
       responses:
         "204":
           description: No Content
-          schema:
-            $ref: '#/definitions/swagger.DeletedResponse'
         "404":
           description: Not Found
           schema:
@@ -477,6 +476,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: Product Ids
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.AssignProductsRequest'
       produces:
       - application/json
       responses:

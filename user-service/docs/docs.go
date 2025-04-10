@@ -249,10 +249,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.DeletedResponse"
-                        }
+                        "description": "No Content"
                     },
                     "404": {
                         "description": "Not Found",
@@ -289,6 +286,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Product Ids",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.AssignProductsRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -312,6 +318,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "swagger.AssignProductsRequest": {
+            "type": "object",
+            "properties": {
+                "product_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "550e8400-e29b-41d4-a716-446655440000"
+                    ]
+                }
+            }
+        },
         "swagger.AttributeResponse": {
             "type": "object",
             "properties": {
@@ -368,18 +388,6 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/swagger.MetaCreated"
-                }
-            }
-        },
-        "swagger.DeletedResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "string",
-                    "example": "null"
-                },
-                "meta": {
-                    "$ref": "#/definitions/swagger.Meta"
                 }
             }
         },
