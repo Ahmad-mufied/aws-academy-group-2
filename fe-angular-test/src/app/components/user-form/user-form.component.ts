@@ -20,16 +20,44 @@ import { MatCardModule } from '@angular/material/card';
   selector: 'app-success-dialog',
   standalone: true,
   template: `
-    <h2 mat-dialog-title>Success</h2>
-    <mat-dialog-content>User has been successfully {{ isEditMode ? 'updated' : 'added' }}!</mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>OK</button>
-    </mat-dialog-actions>
+    <div class="dialog-container">
+      <h2 mat-dialog-title>Success</h2>
+      <mat-dialog-content class="dialog-content">
+        User has been successfully {{ isEditMode ? 'updated' : 'added' }}!
+      </mat-dialog-content>
+      <mat-dialog-actions align="end" class="dialog-actions">
+        <button mat-stroked-button color="primary" mat-dialog-close>OK</button>
+      </mat-dialog-actions>
+    </div>
   `,
+  styles: [`
+    .dialog-container {
+      padding: 0;
+    }
+    .dialog-content {
+      padding: 24px;
+      color: #6b7280;
+    }
+    h2 {
+      font-size: 24px;
+      font-weight: 500;
+      margin: 0;
+      padding: 24px 24px 0 24px;
+      color: #111827;
+    }
+    .dialog-actions {
+      padding: 16px 24px;
+      border-top: 1px solid #e5e7eb;
+      gap: 16px;
+    }
+    button[mat-stroked-button] {
+      padding: 6px 16px;
+    }
+  `],
   imports: [CommonModule, MatDialogModule, MatButtonModule]
 })
 export class SuccessDialogComponent {
-  isEditMode: boolean = false;
+  isEditMode: boolean = false; 
 }
 
 // Confirm Cancel Dialog Component (Opsional)
@@ -123,12 +151,12 @@ export class UserFormComponent implements OnInit {
       } else {
         this.userService.addUser(formData);
       }
-
+  
       const dialogRef = this.dialog.open(SuccessDialogComponent, {
         width: '300px',
         data: { isEditMode: this.isEditMode }
       });
-
+  
       dialogRef.afterClosed().subscribe(() => {
         this.router.navigate(['/users']);
       });
