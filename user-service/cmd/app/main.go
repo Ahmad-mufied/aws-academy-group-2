@@ -17,7 +17,7 @@ import (
 func main() {
 	logger.InitLog()
 
-	cfg, err := config.NewConfig(".env.local")
+	cfg, err := config.NewConfig(".env")
 	checkError(err)
 
 	database, err := database.InitDB(cfg.Database)
