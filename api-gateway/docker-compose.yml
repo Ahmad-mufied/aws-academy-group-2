@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      # - master-service
+      - product-service
+      # - user-service
+    volumes:
+      - ./api-config.toml:/api-config.toml
+
+#  master-service:
+#    image: yourorg/master-service:latest
+#    deploy:
+#      replicas: 3
+#      endpoint_mode: dnsrr
+
+  product-service:
+    image: yourorg/product-service:latest
+    deploy:
+      replicas: 2
+      endpoint_mode: dnsrr
+
+  user-service:
+    image: yourorg/user-service:latest
+    deploy:
+      replicas: 3
+      endpoint_mode: dnsrr

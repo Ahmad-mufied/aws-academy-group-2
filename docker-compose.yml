@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  gateway:
+    build:
+      context: ./api-gateway/
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8090:8090"
+    depends_on:
+      - product-service
+      # - master-service
+      # - user-service
+    networks:
+      - backend
+    volumes:
+      - ./api-gateway/api-config.toml:/api-config.toml
+
+  product-service:
+    build:
+      context: ./product-service/
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGO_URI=mongodb://admin:password@mongodb:27017/
+      - WEB_SERVER_PORT=8081
+    depends_on:
+      - mongodb
+    networks:
+      - backend
+
+  mongodb:
+    image: mongo:6.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - backend
+    restart: always
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+#  master-service:
+#    image: yourorg/master-service:latest
+#    deploy:
+#      replicas: 3
+#      endpoint_mode: dnsrr
+
+# user-service:
+#   image: yourorg/user-service:latest
+#   deploy:
+#     replicas: 3
+#     endpoint_mode: dnsrr
+#
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  backend:
+    driver: bridge

@@ -1,0 +1,43 @@
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# air files
+tmp
+
+# Ignore all .env files
+.env*
+
+# Allow the .env.example file
+!.env.example
+
+# Development and test files
+test/
+tests/
+*_test.go
+*.log
+tmp/
+temp/
+
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs
+bin/
+build/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib

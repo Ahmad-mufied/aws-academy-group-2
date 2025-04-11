@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+  gateway:
+    image: ahmadryzen/aws-academy-group-2-api-gateway:1.0.1
+    ports:
+      - "8090:8090"
+    depends_on:
+      - product-service
+      # - master-service
+      # - user-service
+    networks:
+      - backend-swarm
+    deploy:
+      mode: replicated
+      replicas: 1
+    configs:
+      - source: gateway_config
+        target: /api-config.toml
+
+  product-service:
+    image: ahmadryzen/aws-academy-group-2-product-service:1.0.0
+    environment:
+      - MONGO_URI=mongodb://admin:password@mongodb:27017/
+      - WEB_SERVER_PORT=8081
+    depends_on:
+      - mongodb
+    networks:
+      - backend-swarm
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  mongodb:
+    image: mongo:6.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - backend-swarm
+    deploy:
+      mode: replicated
+      replicas: 1
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+#  master-service:
+#    image: yourorg/master-service:latest
+#    deploy:
+#      replicas: 3
+#      endpoint_mode: dnsrr
+
+# user-service:
+#   image: yourorg/user-service:latest
+#   deploy:
+#     replicas: 3
+#     endpoint_mode: dnsrr
+#
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  backend-swarm:
+    driver: overlay
+
+configs:
+  gateway_config:
+    external: true

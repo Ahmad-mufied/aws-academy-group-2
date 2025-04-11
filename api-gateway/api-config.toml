@@ -1,0 +1,12 @@
+# List services
+[[service]]
+name = "master-api"
+url  = "http://master-service:8082"
+
+[[service]]
+name = "product-api"
+url  = "http://product-service:8081"
+
+[[service]]
+name = "user-api"
+url  = "http://user-service:8083"
