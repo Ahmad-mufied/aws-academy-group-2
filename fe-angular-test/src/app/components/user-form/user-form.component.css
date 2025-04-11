@@ -1,0 +1,43 @@
+.user-form-container {
+  padding: 24px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0 0 24px 0;
+  color: #111827;
+}
+
+.form-card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #f9fafb;
+}
+
+mat-card-content {
+  padding: 24px;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+button[mat-stroked-button] {
+  padding: 6px 16px;
+}
+
+button[mat-raised-button] {
+  padding: 6px 16px;
+}
