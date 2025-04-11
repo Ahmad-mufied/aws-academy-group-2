@@ -52,6 +52,30 @@ http://localhost:8080/swagger/index.html
 ```
 
 
+# 🛠️ Project Structure
+
+```bash
+├── build
+│   ├── Dockerfile     # Dockerfile for app container
+├── cmd                # Application entry point
+├── config             # Configuration files
+├── database/migration # Migration files
+├── internal           # Core business logic
+│   ├── http               # HTTP layer (transport layer)
+│   │   ├── builder/       # For wiring handlers with services (dependency injection)
+│   │   ├── handler/       # Empty folder for HTTP handlers
+│   │   └── router/        # Empty folder for route definitions
+│   ├── model         # Database models
+│   ├── repositories   # Database queries
+│   ├── services       # Business logic layer
+├── pkg                # Utility packages
+├── .env               # Environment variables
+├── docker-compose.yml # Docker configuration
+```
+
+
+
+
 
 
 
