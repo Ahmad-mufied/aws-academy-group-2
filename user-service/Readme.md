@@ -61,17 +61,17 @@ http://localhost:8080/swagger/index.html
 ├── config             # Configuration files
 ├── database/migration # Migration files
 ├── internal           # Core business logic
-├── builder/       # For wiring handlers with services (dependency injection)
+│   ├── builder/       # Dependency injection and wiring
 │   ├── dto/               # Data Transfer Objects (request/response structs)
 │   ├── http               # HTTP layer (transport layer)
 │   │   ├── binder/        # Custom request binders/validators
 │   │   ├── handler/       # Empty folder for HTTP handlers
 │   │   └── router/        # Empty folder for route definitions
-│   ├── model         # Database models
+│   ├── model          # Database models
 │   ├── repositories   # Database queries
 │   ├── services       # Business logic layer
 ├── pkg                # Utility packages
-├── docs/              # Documentation (API specs, Swagger, diagrams, etc.)
+├── docs/              # Documentation (Swagger)
 ├── .env               # Environment variables
 ├── docker-compose.yml # Docker configuration
 ```
