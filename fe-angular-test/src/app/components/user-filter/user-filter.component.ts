@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
@@ -10,64 +11,44 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ChangeDetectionStrategy } from '@angular/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-user-filter',
   standalone: true,
   imports: [
     CommonModule,
+    MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     FormsModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatDialogModule,
-    MatFormFieldModule
+    MatDialogModule
   ],
   providers: [provideNativeDateAdapter()],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <h2 mat-dialog-title>Filter Users</h2>
-    <mat-dialog-content>
-      <mat-form-field>
-        <mat-label>Enter a date range</mat-label>
-        <mat-date-range-input [rangePicker]="picker">
-          <input matStartDate placeholder="Start date">
-          <input matEndDate placeholder="End date">
-        </mat-date-range-input>
-        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-date-range-picker #picker></mat-date-range-picker>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="filters.status">
-          <mat-option value="">All</mat-option>
-          <mat-option value="Active">Active</mat-option>
-          <mat-option value="Inactive">Inactive</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="onApply()">Apply</button>
-    </mat-dialog-actions>
-  `
+  templateUrl: './user-filter.component.html',
+  styleUrls: ['./user-filter.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserFilterComponent {
   filters = {
-    startDate: null,
-    endDate: null,
+    startDate: null as Date | null,
+    endDate: null as Date | null,
     status: ''
   };
 
   constructor(
     public dialogRef: MatDialogRef<UserFilterComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: { startDate?: Date; endDate?: Date; status?: string }
   ) {
-    if (data) this.filters = { ...data }; // Pre-fill kalau ada filter sebelumnya
+    if (data) {
+      this.filters = {
+        startDate: data.startDate || null,
+        endDate: data.endDate || null,
+        status: data.status || ''
+      };
+    }
   }
 
   onCancel(): void {

@@ -1,0 +1,27 @@
+<div class="dialog-container">
+    <h2 mat-dialog-title>Filter Users</h2>
+    <mat-dialog-content class="dialog-content">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Date Range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate [(ngModel)]="filters.startDate" placeholder="Start date">
+          <input matEndDate [(ngModel)]="filters.endDate" placeholder="End date">
+        </mat-date-range-input>
+        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="filters.status">
+          <mat-option value="">All</mat-option>
+          <mat-option value="Active">Active</mat-option>
+          <mat-option value="Inactive">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="dialog-actions">
+      <button mat-stroked-button color="primary" (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="primary" (click)="onApply()">Apply</button>
+    </mat-dialog-actions>
+  </div>

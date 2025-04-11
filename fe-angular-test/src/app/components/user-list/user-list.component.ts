@@ -73,7 +73,7 @@ export class UserListComponent implements OnInit {
       }
     });
   }
-
+  
   applyFilters(): void {
     this.filteredUsers = this.users.filter(user => {
       const matchesSearch = this.searchQuery
