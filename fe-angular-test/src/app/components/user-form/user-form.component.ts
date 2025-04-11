@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
@@ -15,7 +15,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 
-// Success Dialog Component
 @Component({
   selector: 'app-success-dialog',
   standalone: true,
@@ -23,7 +22,7 @@ import { MatCardModule } from '@angular/material/card';
     <div class="dialog-container">
       <h2 mat-dialog-title>Success</h2>
       <mat-dialog-content class="dialog-content">
-        User has been successfully {{ isEditMode ? 'updated' : 'added' }}!
+        User has been successfully {{ data.isEditMode ? 'updated' : 'added' }}!
       </mat-dialog-content>
       <mat-dialog-actions align="end" class="dialog-actions">
         <button mat-stroked-button color="primary" mat-dialog-close>OK</button>
@@ -57,21 +56,53 @@ import { MatCardModule } from '@angular/material/card';
   imports: [CommonModule, MatDialogModule, MatButtonModule]
 })
 export class SuccessDialogComponent {
-  isEditMode: boolean = false; 
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { isEditMode: boolean }
+  ) {}
 }
 
-// Confirm Cancel Dialog Component (Opsional)
 @Component({
   selector: 'app-confirm-cancel-dialog',
   standalone: true,
   template: `
-    <h2 mat-dialog-title>Discard Changes?</h2>
-    <mat-dialog-content>Are you sure you want to discard your changes?</mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close(false)">No</button>
-      <button mat-button color="warn" (click)="dialogRef.close(true)">Yes</button>
-    </mat-dialog-actions>
+    <div class="dialog-container">
+      <h2 mat-dialog-title>Discard Changes?</h2>
+      <mat-dialog-content class="dialog-content">
+        Are you sure you want to discard your changes?
+      </mat-dialog-content>
+      <mat-dialog-actions align="end" class="dialog-actions">
+        <button mat-stroked-button color="primary" (click)="dialogRef.close(false)">No</button>
+        <button mat-raised-button color="warn" (click)="dialogRef.close(true)">Yes</button>
+      </mat-dialog-actions>
+    </div>
   `,
+  styles: [`
+    .dialog-container {
+      padding: 0;
+    }
+    .dialog-content {
+      padding: 24px;
+      color: #6b7280;
+    }
+    h2 {
+      font-size: 24px;
+      font-weight: 500;
+      margin: 0;
+      padding: 24px 24px 0 24px;
+      color: #111827;
+    }
+    .dialog-actions {
+      padding: 16px 24px;
+      border-top: 1px solid #e5e7eb;
+      gap: 16px;
+    }
+    button[mat-stroked-button] {
+      padding: 6px 16px;
+    }
+    button[mat-raised-button] {
+      padding: 6px 16px;
+    }
+  `],
   imports: [CommonModule, MatDialogModule, MatButtonModule]
 })
 export class ConfirmCancelDialogComponent {
@@ -151,12 +182,12 @@ export class UserFormComponent implements OnInit {
       } else {
         this.userService.addUser(formData);
       }
-  
+
       const dialogRef = this.dialog.open(SuccessDialogComponent, {
         width: '300px',
         data: { isEditMode: this.isEditMode }
       });
-  
+
       dialogRef.afterClosed().subscribe(() => {
         this.router.navigate(['/users']);
       });
